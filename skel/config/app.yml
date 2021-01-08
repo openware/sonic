@@ -1,0 +1,8 @@
+database:
+  host: localhost
+  port: 5432
+  name: opendax_development
+
+redis:
+  host: localhost
+  port: 6379

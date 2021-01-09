@@ -23,7 +23,7 @@ type Page struct {
 // SeedPages load from Page from config/Pages.yml to database
 // TODO: Remote from model
 func SeedPages(db *gorm.DB) error {
-	raw, err := ioutil.ReadFile("db/seeds/pages.yml")
+	raw, err := ioutil.ReadFile("config/seeds/pages.yml")
 	if err != nil {
 		return err
 	}

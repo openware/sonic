@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetUp : Set up routes to render view HTML
-func SetUp(router *gin.Engine) {
+// Setup set up routes to render view HTML
+func Setup(router *gin.Engine) {
 	router.GET("/", func(ctx *gin.Context) {
 		//render with master
 		ctx.HTML(http.StatusOK, "index", gin.H{

@@ -52,7 +52,6 @@ github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJ
 github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/nkovacs/streamquote v0.0.0-20170412213628-49af9bddb229/go.mod h1:0aYXnNPJ8l7uZxf45rWW1a/uME32OF0rhiYGNQ2oF2E=
-github.com/openware/pkg v0.0.0-20210105113322-01f2aa7e70bb h1:v/Po7hOBvQYPWoKpxHZAznjwyuPl+5kIOgE6Q+uLOdg=
 github.com/openware/pkg/database v0.0.0-20210105113322-01f2aa7e70bb h1:mW5ekqbQ6YRkxhB3SCKLuknTTgkfi5jex+JTo/Os0f0=
 github.com/openware/pkg/database v0.0.0-20210105113322-01f2aa7e70bb/go.mod h1:9BcPsKBAEjI9MZUIWhdZhws/8Oh0hrYqvrjoJ2n8MJE=
 github.com/openware/pkg/ika v0.0.0-20210105113322-01f2aa7e70bb h1:kooHbmlCVLoa07s9uiVYQMllWM0SFDSxyiLMKKL/DmA=

@@ -13,6 +13,9 @@ import (
 	"github.com/openware/sonic/skel/models"
 )
 
+// Version of the application displayed by the cli and the version endpoint
+var Version = "v1.0.0"
+
 // Config is the application configuration structure
 type config struct {
 	Database struct {
@@ -47,7 +50,6 @@ func serve() error {
 
 	// Connect to the database server with the config/app.yaml configure
 	db := database.ConnectDatabase(Config.Database.Name)
-	// TODO defer db.Close()
 	models.SetDB(db)
 	models.Migrate()
 	handlers.SetPageRoutes(app)
@@ -55,23 +57,23 @@ func serve() error {
 	return nil
 }
 
-// TODO Detect errors
 func dbCreate() error {
 	db := database.ConnectDatabase("")
-	db = db.Exec(fmt.Sprintf("CREATE DATABASE `%s`;", Config.Database.Name))
-	return nil
+	tx := db.Exec(fmt.Sprintf("CREATE DATABASE `%s`;", Config.Database.Name))
+	return tx.Error
 }
 
 func dbMigrate() error {
 	println("Migrating")
-	return nil
+	db := database.ConnectDatabase(Config.Database.Name)
+	models.SetDB(db)
+	return models.Migrate()
 }
 
 func dbSeed() error {
 	db := database.ConnectDatabase(Config.Database.Name)
 	models.SetDB(db)
-	models.Seed()
-	return nil
+	return models.Seed()
 }
 
 func appCreate() error {
@@ -92,21 +94,17 @@ func parse(path string) {
 func main() {
 	// Create new cli
 	cnf := "config/app.yml"
-	cli := kli.NewCli("sonic", "Fullstack micro application", "v1.0.0")
+	cli := kli.NewCli("sonic", "Fullstack micro application", Version)
 	cli.StringFlag("config", "Application yaml configuration file", &cnf)
 
 	// Create an init subcommand
 	// TODO: copy skel and replace package name
-	create := cli.NewSubCommand("create", "Create a sonic application")
-	create.Action(appCreate)
+	cli.NewSubCommand("create", "Create a sonic application").Action(appCreate)
 
 	dbCmd := cli.NewSubCommand("db", "Database commands")
-	dbCmd.NewSubCommand("create", "Create database").
-		Action(dbCreate)
-	dbCmd.NewSubCommand("migrate", "Run database migration").
-		Action(dbMigrate)
-	dbCmd.NewSubCommand("seed", "Run database seeding").
-		Action(dbSeed)
+	dbCmd.NewSubCommand("create", "Create database").Action(dbCreate)
+	dbCmd.NewSubCommand("migrate", "Run database migration").Action(dbMigrate)
+	dbCmd.NewSubCommand("seed", "Run database seeding").Action(dbSeed)
 
 	// Create a test subcommand that's hidden
 	serveCmd := cli.NewSubCommand("serve", "Run the application")

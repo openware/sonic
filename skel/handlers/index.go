@@ -26,3 +26,5 @@ func index(ctx *gin.Context) {
 func emptyPage(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "page.html", gin.H{"title": "Page file title!!"})
 }
+
+// TODO: Add a version handler which return the value of main.Version

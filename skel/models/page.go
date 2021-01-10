@@ -2,13 +2,21 @@ package models
 
 import (
 	"errors"
-	"io/ioutil"
 	"log"
 
 	"github.com/openware/pkg/database"
 	"gopkg.in/yaml.v2"
 	"gorm.io/gorm"
 )
+
+func init() {
+	RegisterModel(&Page{})
+	RegisterSeedAction("config/seeds/pages.yml", func(rawYaml []byte) (interface{}, error) {
+		list := []Page{}
+		err := yaml.Unmarshal(rawYaml, &list)
+		return list, err
+	})
+}
 
 // Page : Table name is `Pages`
 type Page struct {
@@ -19,26 +27,6 @@ type Page struct {
 	Description string `yaml:"description"`
 	Body        string `yaml:"body"`
 	database.Timestamps
-}
-
-// SeedPages load from Page from config/Pages.yml to database
-// TODO: Remote from model
-func SeedPages(db *gorm.DB) error {
-	raw, err := ioutil.ReadFile("config/seeds/pages.yml")
-	if err != nil {
-		return err
-	}
-	Pages := []Page{}
-	err = yaml.Unmarshal(raw, &Pages)
-	if err != nil {
-		return err
-	}
-
-	tx := db.Create(&Pages)
-	if tx.Error != nil {
-		return err
-	}
-	return nil
 }
 
 // FindByPath find and return a page by path

@@ -10,6 +10,7 @@ import (
 // Models contains the list of registered models of the application
 var Models = []interface{}{}
 
+// LoaderFunc is used to parse seed raw data into model type
 type LoaderFunc func([]byte) (interface{}, error)
 
 // SeedAction contains informations needed to seed a table

@@ -3,13 +3,23 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
 )
 
 // Setup set up routes to render view HTML
 func Setup(router *gin.Engine) {
+
+	// Set up view engine
+	router.HTMLRender = ginview.Default()
+
+	// Serve static files
+	router.Static("/public", "./public")
+
 	router.GET("/", index)
 	router.GET("/page", emptyPage)
+
+	SetPageRoutes(router)
 }
 
 // index render with master layer

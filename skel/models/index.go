@@ -24,10 +24,10 @@ var db *gorm.DB
 // Models contains the list of registered models of the application
 var registry = []MetaModel{}
 
-// SetDB used to assign `db` connection
+// Setup used to assign `db` connection
 // after connection is established on start server
-// TODO SetConfig instead and have gorm.DB inside
-func SetDB(conn *gorm.DB) {
+// TODO Setup(App) instead and have gorm.DB inside
+func Setup(conn *gorm.DB) {
 	db = conn
 }
 

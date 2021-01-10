@@ -2,22 +2,24 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"log"
 
-	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
 	"github.com/openware/pkg/database"
 	"github.com/openware/pkg/ika"
 	"github.com/openware/pkg/kli"
 	"github.com/openware/sonic/skel/handlers"
 	"github.com/openware/sonic/skel/models"
+	"gorm.io/gorm"
 )
 
 // Version of the application displayed by the cli and the version endpoint
+// TODO move to release system passing it as build param
 var Version = "v1.0.0"
 
 // Config is the application configuration structure
-type config struct {
+type Config struct {
+	// TODO move to database package
 	Database struct {
 		Driver string `yaml:"driver" env:"DATABASE_DRIVER" env-description:"Database driver"`
 		Host   string `yaml:"host" env:"DATABASE_HOST" env-description:"Database host"`
@@ -26,6 +28,7 @@ type config struct {
 		User   string `yaml:"user" env:"DATABASE_USER" env-description:"Database user"`
 		Pass   string `env:"DATABASE_PASS" env-description:"Database user password"`
 	} `yaml:"database"`
+	// TODO Create a redis and vault package
 	Redis struct {
 		Host string `yaml:"host" env:"REDIS_HOST" env-description:"Redis Server host" env-default:"localhost"`
 		Port string `yaml:"port" env:"REDIS_PORT" env-description:"Redis Server port" env-default:"6379"`
@@ -33,62 +36,66 @@ type config struct {
 	Port string `env:"APP_PORT" env-description:"Port for HTTP service" env-default:"6009"`
 }
 
-// Config for the application
-var Config config
+// Runtime configuration of the application
+type Runtime struct {
+	conf Config
+	db   *gorm.DB
+	srv  *gin.Engine
+}
+
+// App config for the application
+var App Runtime
 
 func serve() error {
-	var app = gin.Default()
-
-	// Serve static files
-	app.Static("/public", "./public")
-
-	// Set up view engine
-	app.HTMLRender = ginview.Default()
-
+	if err := boot(); err != nil {
+		return err
+	}
+	App.srv = gin.Default()
 	// Setup routes
-	handlers.Setup(app)
-
-	// Connect to the database server with the config/app.yaml configure
-	db := database.ConnectDatabase(Config.Database.Name)
-	models.SetDB(db)
-	models.Migrate()
-	handlers.SetPageRoutes(app)
-	app.Run(":" + Config.Port)
+	handlers.Setup(App.srv)
+	// TODO handlers.Setup(conf)
+	App.srv.Run(":" + App.conf.Port)
 	return nil
 }
 
 func dbCreate() error {
+	// Use existing connection
 	db := database.ConnectDatabase("")
-	tx := db.Exec(fmt.Sprintf("CREATE DATABASE `%s`;", Config.Database.Name))
+	tx := db.Exec(fmt.Sprintf("CREATE DATABASE `%s`;", App.conf.Database.Name))
 	return tx.Error
 }
 
 func dbMigrate() error {
-	println("Migrating")
-	db := database.ConnectDatabase(Config.Database.Name)
-	models.SetDB(db)
+	if err := boot(); err != nil {
+		return err
+	}
 	return models.Migrate()
 }
 
 func dbSeed() error {
-	db := database.ConnectDatabase(Config.Database.Name)
-	models.SetDB(db)
+	if err := boot(); err != nil {
+		return err
+	}
 	return models.Seed()
 }
 
+// TODO: copy skel and replace package name
 func appCreate() error {
 	println("Creating app")
 	return nil
 }
 
-// Parse the configuration and prefill the param cfg
-func parse(path string) {
-	// read configuration from the file and environment variables
-	fmt.Println(path)
-	if err := ika.ReadConfig(path, &Config); err != nil {
-		fmt.Println(err)
-		os.Exit(2)
-	}
+// boot is executed before commands
+func boot() error {
+	// Connect to the database server with the config/app.yaml configure
+	// TODO write boot()
+	// 	conf := sonic.ParseConfig()
+	// 	App.DB := database.Connect(conf)
+	// 	models.Setup(conf)
+	App.db = database.ConnectDatabase(App.conf.Database.Name)
+	models.Setup(App.db)
+	return models.Migrate()
+
 }
 
 func main() {
@@ -98,7 +105,6 @@ func main() {
 	cli.StringFlag("config", "Application yaml configuration file", &cnf)
 
 	// Create an init subcommand
-	// TODO: copy skel and replace package name
 	cli.NewSubCommand("create", "Create a sonic application").Action(appCreate)
 
 	dbCmd := cli.NewSubCommand("db", "Database commands")
@@ -106,14 +112,14 @@ func main() {
 	dbCmd.NewSubCommand("migrate", "Run database migration").Action(dbMigrate)
 	dbCmd.NewSubCommand("seed", "Run database seeding").Action(dbSeed)
 
-	// Create a test subcommand that's hidden
 	serveCmd := cli.NewSubCommand("serve", "Run the application")
 	serveCmd.Action(serve)
 
-	parse(cnf)
-
-	// Run!
+	// read configuration from the file and environment variables
+	if err := ika.ReadConfig(cnf, &App.conf); err != nil {
+		log.Fatalf("Error: %v\n", err)
+	}
 	if err := cli.Run(); err != nil {
-		fmt.Printf("Error: %v\n", err)
+		log.Fatalf("Run: %v\n", err)
 	}
 }

@@ -12,6 +12,6 @@ func InitTestDB() {
 		panic(err)
 	}
 
-	SetDB(db)
+	Setup(db)
 	Migrate()
 }

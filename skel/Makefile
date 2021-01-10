@@ -3,7 +3,10 @@ APPS     :=	sonic
 all:	$(APPS)
 
 $(APPS):
-	go build -o bin/$@ cmd/$@/*.go
+	go build -o bin/$@ app.go
+
+test:
+	go test ./...
 
 asset:
 	cd client && \

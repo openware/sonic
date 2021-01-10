@@ -10,8 +10,7 @@ import (
 )
 
 func init() {
-	RegisterModel(&Page{})
-	RegisterSeedAction("config/seeds/pages.yml", func(rawYaml []byte) (interface{}, error) {
+	Register("pages", &Page{}, func(rawYaml []byte) (interface{}, error) {
 		list := []Page{}
 		err := yaml.Unmarshal(rawYaml, &list)
 		return list, err

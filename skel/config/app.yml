@@ -1,3 +1,10 @@
+port: 6969
+
+asset:
+  init: yarn install
+  build: yarn build
+  copy: cp -r client/build/ public/assets/
+
 database:
   host: localhost
   port: 5432

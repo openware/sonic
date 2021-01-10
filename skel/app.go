@@ -8,6 +8,7 @@ import (
 	"github.com/openware/pkg/database"
 	"github.com/openware/pkg/ika"
 	"github.com/openware/pkg/kli"
+	"github.com/openware/sonic"
 	"github.com/openware/sonic/skel/handlers"
 	"github.com/openware/sonic/skel/models"
 	"gorm.io/gorm"
@@ -114,6 +115,8 @@ func main() {
 
 	serveCmd := cli.NewSubCommand("serve", "Run the application")
 	serveCmd.Action(serve)
+
+	sonic.Init()
 
 	// read configuration from the file and environment variables
 	if err := ika.ReadConfig(cnf, &App.conf); err != nil {

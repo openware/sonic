@@ -67,6 +67,8 @@ github.com/openware/pkg/kli v0.0.0-20210109233626-a4a9203f1fb9 h1:6Y90zVw5SAeKFu
 github.com/openware/pkg/kli v0.0.0-20210109233626-a4a9203f1fb9/go.mod h1:GOlHexRI3ZB6oePaiqObLDwZ6/FmrmTb6hho62wehOE=
 github.com/openware/pkg/utils v0.0.0-20210109233626-a4a9203f1fb9 h1:yy4sNmRCxhjL49+GAb7llsuPbH1Tm0HSnZwrUPkg5pA=
 github.com/openware/pkg/utils v0.0.0-20210109233626-a4a9203f1fb9/go.mod h1:xnqmuSO0HWDHKC4i+vNL6WkcSBSl02Jx8PHuq78o7a8=
+github.com/openware/sonic v0.0.0-20210110150949-c9c4a0d47799 h1:q5fN3lFJiXCmE7cwGSFgxrcPpDbIaZDGJmJmcFx+Jz0=
+github.com/openware/sonic v0.0.0-20210110150949-c9c4a0d47799/go.mod h1:xugmNiIga9NRMLATwybYKGWFu0AE0M82kHo5Pnd3LEY=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

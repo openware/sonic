@@ -9,6 +9,7 @@ require (
 	github.com/openware/pkg/database v0.0.0-20210110002944-50c944a5e00d
 	github.com/openware/pkg/ika v0.0.0-20210109233626-a4a9203f1fb9
 	github.com/openware/pkg/kli v0.0.0-20210109233626-a4a9203f1fb9
+	github.com/openware/sonic v0.0.0-20210110150949-c9c4a0d47799
 	github.com/stretchr/testify v1.6.1
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/sqlite v1.1.4

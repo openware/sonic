@@ -47,10 +47,10 @@ func serve() error {
 
 	// Connect to the database server with the config/app.yaml configure
 	db := database.ConnectDatabase(Config.Database.Name)
-	// defer db.Close()
+	// TODO defer db.Close()
 	models.SetDB(db)
 	models.Migrate()
-	handlers.SetPageRoutes(db, app)
+	handlers.SetPageRoutes(app)
 	app.Run(":" + Config.Port)
 	return nil
 }

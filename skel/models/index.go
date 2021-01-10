@@ -1,26 +1,16 @@
 package models
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
-// Timestamps adding time at the end of models
-type Timestamps struct {
-	CreatedAt time.Time `yaml:"created_at"`
-	UpdatedAt time.Time `yaml:"updated_at"`
+// Tables export tables ordered list
+var Tables = []interface{}{
+	&Page{},
 }
 
 // db pointer for sharing among models
 var db *gorm.DB
-
-// Tables export tables list
-// Please order tables to able to delete tables when drop
-// Used in migration database
-var Tables = []interface{}{
-	&Page{},
-}
 
 // SetDB used to assign `db` connection
 // after connection is established on start server

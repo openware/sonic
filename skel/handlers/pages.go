@@ -7,12 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gomarkdown/markdown"
 	"github.com/openware/sonic/skel/models"
-	"gorm.io/gorm"
 )
 
 // SetPageRoutes configure module HTTP routes
-func SetPageRoutes(db *gorm.DB, router *gin.Engine) error {
-	//FIXME use []Page
+func SetPageRoutes(router *gin.Engine) error {
 	ptr := models.Page{}
 	for _, p := range ptr.List() {
 		router.GET(p.Path, pageGet(&p))

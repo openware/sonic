@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/openware/pkg/database"
 	"gopkg.in/yaml.v2"
 	"gorm.io/gorm"
 )
@@ -17,7 +18,7 @@ type Page struct {
 	Title       string `yaml:"title"`
 	Description string `yaml:"description"`
 	Body        string `yaml:"body"`
-	Timestamps
+	database.Timestamps
 }
 
 // SeedPages load from Page from config/Pages.yml to database

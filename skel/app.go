@@ -15,8 +15,7 @@ import (
 )
 
 // Version of the application displayed by the cli and the version endpoint
-// TODO move to release system passing it as build param
-var Version = "v1.0.0"
+var Version = "SNAPSHOT"
 
 // Config is the application configuration structure
 type Config struct {

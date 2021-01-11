@@ -20,15 +20,7 @@ var Version = "v1.0.0"
 
 // Config is the application configuration structure
 type Config struct {
-	// TODO move to database package
-	Database struct {
-		Driver string `yaml:"driver" env:"DATABASE_DRIVER" env-description:"Database driver"`
-		Host   string `yaml:"host" env:"DATABASE_HOST" env-description:"Database host"`
-		Port   string `yaml:"port" env:"DATABASE_PORT" env-description:"Database port"`
-		Name   string `yaml:"name" env:"DATABASE_NAME" env-description:"Database name"`
-		User   string `yaml:"user" env:"DATABASE_USER" env-description:"Database user"`
-		Pass   string `env:"DATABASE_PASS" env-description:"Database user password"`
-	} `yaml:"database"`
+	Database database.Config
 	// TODO Create a redis and vault package
 	Redis struct {
 		Host string `yaml:"host" env:"REDIS_HOST" env-description:"Redis Server host" env-default:"localhost"`
@@ -61,8 +53,13 @@ func serve() error {
 
 func dbCreate() error {
 	// Use existing connection
-	db := database.ConnectDatabase("")
-	tx := db.Exec(fmt.Sprintf("CREATE DATABASE `%s`;", App.conf.Database.Name))
+	dbName := App.conf.Database.Name
+	App.conf.Database.Name = ""
+	db, err := database.Connect(&App.conf.Database)
+	if err != nil {
+		return err
+	}
+	tx := db.Exec(fmt.Sprintf("CREATE DATABASE `%s`;", dbName))
 	return tx.Error
 }
 
@@ -93,7 +90,11 @@ func boot() error {
 	// 	conf := sonic.ParseConfig()
 	// 	App.DB := database.Connect(conf)
 	// 	models.Setup(conf)
-	App.db = database.ConnectDatabase(App.conf.Database.Name)
+	db, err := database.Connect(&App.conf.Database)
+	if err != nil {
+		return err
+	}
+	App.db = db
 	models.Setup(App.db)
 	return models.Migrate()
 

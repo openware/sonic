@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/openware/sonic"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +21,7 @@ type MetaModel struct {
 
 // db pointer for sharing among models
 var db *gorm.DB
+var app *sonic.Runtime
 
 // Models contains the list of registered models of the application
 var registry = []MetaModel{}
@@ -27,8 +29,9 @@ var registry = []MetaModel{}
 // Setup used to assign `db` connection
 // after connection is established on start server
 // TODO Setup(App) instead and have gorm.DB inside
-func Setup(conn *gorm.DB) {
-	db = conn
+func Setup(apr *sonic.Runtime) {
+	app = apr
+	db = apr.DB
 }
 
 // Register a model to the framework

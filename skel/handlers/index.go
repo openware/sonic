@@ -5,11 +5,13 @@ import (
 
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
+	"github.com/openware/sonic"
 )
 
 // Setup set up routes to render view HTML
-func Setup(router *gin.Engine) {
+func Setup(app *sonic.Runtime) {
 
+	router := app.Srv
 	// Set up view engine
 	router.HTMLRender = ginview.Default()
 

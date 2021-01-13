@@ -1,7 +1,6 @@
 package sonic
 
-import "fmt"
-
+// Init a new sonic cli
 func Init() {
-	fmt.Println("Sonic Init()")
+
 }

@@ -1,4 +1,11 @@
 {{define "head"}}
+    <head>
+        {{ if .cssFiles}}
+            {{range .cssFiles}}
+                <link href={{ . }} rel="stylesheet">
+            {{end}}
+        {{end}}
+    </head>
     <style>
         .home { color: blue;}
     </style>
@@ -6,8 +13,18 @@
 
 
 {{define "content"}}
-    <h1 class="home">Homepage</h1>
-    <p>42 + 142 = {{call $.add 42 142}}</p>
-    <hr>
-    <p><a href="/page">Page render</a></p>
+    <body>
+        <div id={{ .rootID }}></div>
+        <h1 class="home">Homepage</h1>
+        <p>42 + 142 = {{call $.add 42 142}}</p>
+        <hr>
+        <p><a href="/page">Page render</a></p>
+        <div id="root"></div>
+        {{ if .jsFiles}}
+            {{range .jsFiles}}
+                <script src="{{ . }}"></script>
+            {{end}}
+        {{end}}
+
+    </body>
 {{end}}

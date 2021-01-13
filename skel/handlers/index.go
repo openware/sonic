@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
@@ -31,8 +35,16 @@ func Setup(app *sonic.Runtime) {
 
 // index render with master layer
 func index(ctx *gin.Context) {
+	fullPath, _ := os.Getwd()
+
+	cssFiles, _ := WalkMatch(fullPath+"/public/assets", "*.*.css")
+	jsFiles, _ := WalkMatch(fullPath+"/public/assets", "*.*.js")
+
 	ctx.HTML(http.StatusOK, "index", gin.H{
-		"title": "Index title!",
+		"title":    "Index title!",
+		"cssFiles": cssFiles,
+		"jsFiles":  jsFiles,
+		"rootID":   "app",
 		"add": func(a int, b int) int {
 			return a + b
 		},
@@ -48,3 +60,30 @@ func emptyPage(ctx *gin.Context) {
 func version(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"Version": Version})
 }
+
+func WalkMatch(root, pattern string) ([]string, error) {
+	fullPath, _ := os.Getwd()
+
+	var matches []string
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
+			return err
+		} else if matched {
+			matches = append(matches, strings.Replace(path, fullPath, "", -1))
+			fmt.Println(path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return matches, nil
+}
+
+// TODO: Add a version handler which return the value of main.Version

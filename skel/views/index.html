@@ -19,7 +19,6 @@
         <p>42 + 142 = {{call $.add 42 142}}</p>
         <hr>
         <p><a href="/page">Page render</a></p>
-        <div id="root"></div>
         {{ if .jsFiles}}
             {{range .jsFiles}}
                 <script src="{{ . }}"></script>

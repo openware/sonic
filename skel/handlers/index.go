@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -44,7 +43,7 @@ func index(ctx *gin.Context) {
 		"title":    "Index title!",
 		"cssFiles": cssFiles,
 		"jsFiles":  jsFiles,
-		"rootID":   "app",
+		"rootID":   "root",
 		"add": func(a int, b int) int {
 			return a + b
 		},
@@ -76,7 +75,6 @@ func WalkMatch(root, pattern string) ([]string, error) {
 			return err
 		} else if matched {
 			matches = append(matches, strings.Replace(path, fullPath, "", -1))
-			fmt.Println(path)
 		}
 		return nil
 	})

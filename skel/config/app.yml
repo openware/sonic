@@ -6,8 +6,10 @@ asset:
   copy: cp -r client/build/ public/assets/
 
 database:
+  driver: "mysql"
   host: localhost
-  port: 5432
+  port: 3306
+  user: root
   name: opendax_development
 
 redis:

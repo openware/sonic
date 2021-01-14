@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -26,16 +25,13 @@ func serve() error {
 	return nil
 }
 
-func dbCreate() error {
-	// TODO move to pkg database and drop db command
-	db := database.ConnectDatabase("")
-	tx := db.Exec(fmt.Sprintf("CREATE DATABASE `%s`;", App.Conf.Database.Name))
-	return tx.Error
-}
-
 // boot is executed before commands
 func boot() error {
-	App.DB = database.ConnectDatabase(App.Conf.Database.Name)
+	var err error
+	App.DB, err = database.Connect(&App.Conf.Database)
+	if err != nil {
+		log.Fatal(err)
+	}
 	models.Setup(&App)
 	return models.Migrate()
 }
@@ -46,10 +42,13 @@ func main() {
 	cli := kli.NewCli("sonic", "Fullstack micro application", Version)
 	cli.StringFlag("config", "Application yaml configuration file", &cnf)
 
-	// TODO move create and drop to sonic pkg
-
 	dbCmd := cli.NewSubCommand("db", "Database commands")
-	dbCmd.NewSubCommand("create", "Create database").Action(dbCreate)
+	dbCmd.NewSubCommand("create", "Create database").Action(func() error {
+		return database.Create(App.DB, App.Conf.Database.Name)
+	})
+	dbCmd.NewSubCommand("drop", "Drop database").Action(func() error {
+		return database.Drop(App.DB, App.Conf.Database.Name)
+	})
 	dbCmd.NewSubCommand("migrate", "Run database migration").Action(boot)
 	dbCmd.NewSubCommand("seed", "Run database seeding").Action(func() error {
 		return models.Seed()
@@ -62,6 +61,11 @@ func main() {
 	if err := ika.ReadConfig(cnf, &App.Conf); err != nil {
 		log.Fatalf("Error: %v\n", err)
 	}
+	// FIXME
+	// We need to change logic here
+	// If database doesn't exist - you can not create it, because boot() will run migrations and raise an error.
+	//
+	// Due to mysql compose config - opendax_development exists by default and we don't face this issue if we just started mysql.
 	if err := boot(); err != nil {
 		log.Fatalf("Error: %v\n", err)
 	}

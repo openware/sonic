@@ -61,7 +61,7 @@ svm_clone ()
     git pull origin master
   else
     echo "=> Cloning svm as script to '$INSTALL_DIR'"
-    git clone --quiet https://github.com/openware/sonic.git ~/.svm
+    git clone --quiet --branch feature/copy-skel https://github.com/TeeSrisantitham/sonic.git  ~/.svm
   fi
 }
 
@@ -72,7 +72,7 @@ svm_install ()
   local PROFILE_INSTALL_DIR
   PROFILE_INSTALL_DIR="$(svm_install_dir)"
 
-  SOURCE_STR="\\nexport SVM_DIR=\"${PROFILE_INSTALL_DIR}\"\\n[ -s \"\$SVM_DIR/scripts/svm.sh\" ] && \\. \"\$SVM_DIR/scripts/svm.sh\"
+  SOURCE_STR="\\nexport SVM_DIR=\"${PROFILE_INSTALL_DIR}\"\\n[ -s \"\$SVM_DIR/scripts/svm.sh\" ] && \\. \"\$SVM_DIR/scripts/svm.sh\""
 
   if ! command grep -qc '/scripts/svm.sh' "$SVM_PROFILE"; then
     echo "=> Appending svm source string to $SVM_PROFILE"

@@ -57,13 +57,13 @@ install ()
 {
   local APP
   APP="${1}"
-  local NAME
-  NAME="${2:-${APP}}"
 
-  echo "=> Installing ${APP} to ${NAME}"
+  echo "=> Installing ${APP}"
 
   case $APP in 
     'github.com/openware/appsonic' | 'appsonic')
+      local NAME
+      NAME="${2:-appsonic}"
       cp -r $HOME/.svm/skel ${NAME}
       sed -i '' "s/github.com\/openware\/sonic\/skel/${NAME}/g" ${NAME}/**/*.go ${NAME}/go.mod
       ;;

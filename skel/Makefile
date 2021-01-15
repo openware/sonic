@@ -16,6 +16,3 @@ asset:
 
 clean:
 	rm -rf bin/*
-
-
-## line:14 we can't use build.sh in makefile or we need put in readme what build.sh should have

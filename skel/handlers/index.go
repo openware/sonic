@@ -34,10 +34,20 @@ func Setup(app *sonic.Runtime) {
 
 // index render with master layer
 func index(ctx *gin.Context) {
-	fullPath, _ := os.Getwd()
+	fullPath, err := os.Getwd()
+	if err != nil {
+		log.Error("getwd", "Can't return path: "+err.Error())
+	}
 
-	cssFiles, _ := WalkMatch(fullPath+"/public/assets", "*.*.css")
-	jsFiles, _ := WalkMatch(fullPath+"/public/assets", "*.*.js")
+	cssFiles, err := WalkMatch(fullPath+"/public/assets", "*.*.css")
+	if err != nil {
+		log.Error("walkMatch", "Can't take list of paths for js files: "+err.Error())
+	}
+
+	jsFiles, err := WalkMatch(fullPath+"/public/assets", "*.*.js")
+	if err != nil {
+		log.Error("walkMatch", "Can't take list of paths for js files: "+err.Error())
+	}
 
 	ctx.HTML(http.StatusOK, "index", gin.H{
 		"title":    "Index title!",
@@ -61,8 +71,10 @@ func version(ctx *gin.Context) {
 }
 
 func WalkMatch(root, pattern string) ([]string, error) {
-	fullPath, _ := os.Getwd()
-
+	fullPath, err := os.Getwd()
+	if err != nil {
+		log.Error("getwd", "Can not return path: "+err.Error())
+	}
 	var matches []string
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

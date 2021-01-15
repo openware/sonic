@@ -18,4 +18,5 @@ It will run build in client and after that all build files will moved to public/
 go run app.go serve
 ```
 
+# Troubleshooting
 **if it's not work and you see white screen don't worry firstly check order of the import files in index.html**

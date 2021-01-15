@@ -14,11 +14,11 @@ require (
 	github.com/openware/pkg/ika v0.0.0-20210110002944-50c944a5e00d
 	github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d
 	github.com/openware/pkg/utils v0.0.0-20210110002944-50c944a5e00d // indirect
-	github.com/openware/sonic v0.0.0-20210113001509-a6a6030e1ebb
+	github.com/openware/sonic v0.0.0-20210114135538-6caec8508e1a
 	github.com/stretchr/testify v1.6.1
 	github.com/ugorji/go v1.2.3 // indirect
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
-	golang.org/x/sys v0.0.0-20210112091331-59c308dcf3cc // indirect
+	golang.org/x/sys v0.0.0-20210113181707-4bcb84eeeb78 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/sqlite v1.1.4

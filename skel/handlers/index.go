@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -34,19 +35,14 @@ func Setup(app *sonic.Runtime) {
 
 // index render with master layer
 func index(ctx *gin.Context) {
-	fullPath, err := os.Getwd()
+	cssFiles, err := FilesPaths("/public/assets/*.css")
 	if err != nil {
-		log.Error("getwd", "Can't return path: "+err.Error())
+		log.Println("filePaths:", "Can't take list of paths for css files: "+err.Error())
 	}
 
-	cssFiles, err := WalkMatch(fullPath+"/public/assets", "*.*.css")
+	jsFiles, err := FilesPaths("/public/assets/*.js")
 	if err != nil {
-		log.Error("walkMatch", "Can't take list of paths for js files: "+err.Error())
-	}
-
-	jsFiles, err := WalkMatch(fullPath+"/public/assets", "*.*.js")
-	if err != nil {
-		log.Error("walkMatch", "Can't take list of paths for js files: "+err.Error())
+		log.Println("filePaths", "Can't take list of paths for js files in public folder: "+err.Error())
 	}
 
 	ctx.HTML(http.StatusOK, "index", gin.H{
@@ -70,29 +66,23 @@ func version(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"Version": Version})
 }
 
-func WalkMatch(root, pattern string) ([]string, error) {
-	fullPath, err := os.Getwd()
-	if err != nil {
-		log.Error("getwd", "Can not return path: "+err.Error())
-	}
+func FilesPaths(pattern string) ([]string, error) {
 	var matches []string
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
-			return err
-		} else if matched {
-			matches = append(matches, strings.Replace(path, fullPath, "", -1))
-		}
-		return nil
-	})
+
+	fullPath, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
+
+	matches, err = filepath.Glob(fullPath + pattern)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, _ := range matches {
+		matches[i] = strings.Replace(matches[i], fullPath, "", -1)
+	}
+
 	return matches, nil
 }
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 svm() {
   if [ $# -lt 1 ]; then
@@ -14,11 +14,7 @@ svm() {
       '-h'|'help'|'--help')
         echo 'Usage:'
         echo '  svm --help                                  Show this message'
-        echo '  svm [<options>] install <application>       Install application'
-        echo '    The following aplication name'
-        echo '       github.com/openware/appsonic           Install appsonic'
-        echo '    The following optional arguments'
-        echo '      --name=<name>                           Set application name';;
+        echo '  svm [<options>] create                      Install sonic';;
       *)
     esac
   done
@@ -36,8 +32,8 @@ svm() {
   COMMAND="${1}"
 
   case $COMMAND in 
-    'install' | 'i')
-      install "${2}" "${NAME}"
+    'create' | 'i')
+      create "${2}"
       ;;
     *)
       hander_err "Command ${COMMAND} is not found"
@@ -53,24 +49,20 @@ hander_err ()
   echo "=> Error: ${ERROR_MSG}" 
 }
 
-install ()
+create ()
 {
-  local APP
-  APP="${1}"
+  local DESTINATION
+  DESTINATION=${1}
+  local DIR
 
-  echo "=> Installing ${APP}"
+  IFS='/'
+  read array ADDR <<< "$DESTINATION"
+  read array DIR <<< "$ADDR"
 
-  case $APP in 
-    'github.com/openware/appsonic' | 'appsonic')
-      local NAME
-      NAME="${2:-appsonic}"
-      cp -r $HOME/.svm/skel ${NAME}
-      sed -i '' "s/github.com\/openware\/sonic\/skel/${NAME}/g" ${NAME}/**/*.go ${NAME}/go.mod
-      ;;
-    *)
-      hander_err "Application ${APP} is not found"
-      ;;
-  esac
+  echo "=> Creating ${DIR}"
 
-  echo "=> Installed"
+  cp -r $HOME/.svm/skel ${DIR}
+  sed -i -e "s|github.com/openware/sonic/skel|${DESTINATION}|g" ${DIR}/**/*.go ${DIR}/go.mod
+
+  echo "=> Done"
 }

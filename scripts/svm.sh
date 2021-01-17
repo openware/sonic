@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 svm() {
   if [ $# -lt 1 ]; then
@@ -14,19 +14,12 @@ svm() {
       '-h'|'help'|'--help')
         echo 'Usage:'
         echo '  svm --help                                  Show this message'
-        echo '  svm [<options>] create                      Install sonic';;
+        echo '  svm [<options>] create                      Install sonic'
+        return
+        ;;
       *)
     esac
   done
-
-  local NAME
-
-  case "$1" in 
-    --name=*)    
-        NAME="${1##--name=}"
-        shift
-      ;;
-  esac
 
   local COMMAND
   COMMAND="${1}"

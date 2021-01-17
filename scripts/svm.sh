@@ -45,12 +45,17 @@ hander_err ()
 create ()
 {
   local DESTINATION
-  DESTINATION=${1}
+  DESTINATION="github.com/openware/yellow"
   local DIR
+  local ADDR
 
   IFS='/'
   read array ADDR <<< "$DESTINATION"
   read array DIR <<< "$ADDR"
+
+  # IFS='/'
+  # read -a ADDR <<< "$DESTINATION" # It error create:read:12: bad option: -a
+  # DIR=${ADDR[${#ADDR[@]}-1]}
 
   echo "=> Creating ${DIR}"
 

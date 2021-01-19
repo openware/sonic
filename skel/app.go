@@ -32,6 +32,7 @@ func boot() error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	App.Version = Version
 	models.Setup(&App)
 	return models.Migrate()
 }

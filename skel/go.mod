@@ -13,7 +13,6 @@ require (
 	github.com/openware/pkg/database v0.0.0-20210113145702-fb5cceb8f775
 	github.com/openware/pkg/ika v0.0.0-20210110002944-50c944a5e00d
 	github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d
-	github.com/openware/pkg/utils v0.0.0-20210110002944-50c944a5e00d // indirect
 	github.com/openware/sonic v0.0.0-20210114135538-6caec8508e1a
 	github.com/stretchr/testify v1.6.1
 	github.com/ugorji/go v1.2.3 // indirect

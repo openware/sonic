@@ -14,7 +14,7 @@ svm() {
       '-h'|'help'|'--help')
         echo 'Usage:'
         echo '  svm --help                                  Show this message'
-        echo '  svm [<options>] create                      Install sonic'
+        echo '  svm create <project name>                   Install sonic'
         return
         ;;
       *)
@@ -45,22 +45,19 @@ hander_err ()
 create ()
 {
   local DESTINATION
-  DESTINATION="github.com/openware/yellow"
+  DESTINATION="$1"
   local DIR
   local ADDR
 
   IFS='/'
-  read array ADDR <<< "$DESTINATION"
-  read array DIR <<< "$ADDR"
-
-  # IFS='/'
-  # read -a ADDR <<< "$DESTINATION" # It error create:read:12: bad option: -a
-  # DIR=${ADDR[${#ADDR[@]}-1]}
+  read -A ADDR <<< "$DESTINATION"
+  DIR=${ADDR[${#ADDR[@]}]}
 
   echo "=> Creating ${DIR}"
 
   cp -r $HOME/.svm/skel ${DIR}
   sed -i -e "s|github.com/openware/sonic/skel|${DESTINATION}|g" ${DIR}/**/*.go ${DIR}/go.mod
+  git init -q ${DIR}
 
   echo "=> Done"
 }

@@ -53,16 +53,20 @@ create ()
   read -A ADDR <<< "$GITPATH"
   DIR=${ADDR[${#ADDR[@]}]}
 
-  echo "=> Creating ${DIR}"
+  if [ -d ${DIR} ]; then
+    echo "${DIR} already exists"
+  else
+    echo "=> Creating ${DIR}"
 
-  cp -r $HOME/.svm/skel ${DIR}
-  sed -i "" "s|github.com/openware/sonic/skel|${GITPATH}|g" ${DIR}/**/*.go ${DIR}/go.mod
-  
-  git init -q ${DIR}
-  cd ${DIR}
-  git add .
-  git commit -q -m "Initiali commit"
-  git remote add orgin ${GITPATH}
-  cd ..
+    cp -r $HOME/.svm/skel ${DIR}
+    sed -i "" "s|github.com/openware/sonic/skel|${GITPATH}|g" ${DIR}/**/*.go ${DIR}/go.mod
+    
+    git init -q ${DIR}
+    cd ${DIR}
+    git add .
+    git commit -q -m "Initiali commit"
+    git remote add orgin ${GITPATH}
+    cd ..
+  fi
   echo "=> Done"
 }

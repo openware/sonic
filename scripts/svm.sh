@@ -44,20 +44,25 @@ hander_err ()
 
 create ()
 {
-  local DESTINATION
-  DESTINATION="$1"
+  local GITPATH
+  GITPATH="$1"
   local DIR
   local ADDR
 
   IFS='/'
-  read -A ADDR <<< "$DESTINATION"
+  read -A ADDR <<< "$GITPATH"
   DIR=${ADDR[${#ADDR[@]}]}
 
   echo "=> Creating ${DIR}"
 
   cp -r $HOME/.svm/skel ${DIR}
-  sed -i -e "s|github.com/openware/sonic/skel|${DESTINATION}|g" ${DIR}/**/*.go ${DIR}/go.mod
+  sed -i "" "s|github.com/openware/sonic/skel|${GITPATH}|g" ${DIR}/**/*.go ${DIR}/go.mod
+  
   git init -q ${DIR}
-
+  cd ${DIR}
+  git add .
+  git commit -q -m "Initiali commit"
+  git remote add orgin ${GITPATH}
+  cd ..
   echo "=> Done"
 }

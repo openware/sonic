@@ -33,7 +33,9 @@ svm_detect_profile() {
     elif [ -f "$HOME/.bash_profile" ]; then
       DETECTED_PROFILE="$HOME/.bash_profile"
     fi
-  elif [ -n "${ZSH_VERSION-}" ]; then
+  fi
+  
+  if [ -n "${ZSH_VERSION-}" ]; then
     DETECTED_PROFILE="$HOME/.zshrc"
   fi
 
@@ -88,4 +90,4 @@ svm()
   svm_install
 }
 
-svm "@"
+svm

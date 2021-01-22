@@ -7,7 +7,8 @@ import (
 
 // Runtime configuration of the application
 type Runtime struct {
-	Conf Config
-	DB   *gorm.DB
-	Srv  *gin.Engine
+	Conf    Config
+	DB      *gorm.DB
+	Srv     *gin.Engine
+	Version string
 }

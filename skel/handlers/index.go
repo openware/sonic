@@ -8,18 +8,23 @@ import (
 	"github.com/openware/sonic"
 )
 
+// Version variable stores Application Version from main package
+var Version string
+
 // Setup set up routes to render view HTML
 func Setup(app *sonic.Runtime) {
 
 	router := app.Srv
 	// Set up view engine
 	router.HTMLRender = ginview.Default()
+	Version = app.Version
 
 	// Serve static files
 	router.Static("/public", "./public")
 
 	router.GET("/", index)
 	router.GET("/page", emptyPage)
+	router.GET("/version", version)
 
 	SetPageRoutes(router)
 }
@@ -39,4 +44,7 @@ func emptyPage(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "page.html", gin.H{"title": "Page file title!!"})
 }
 
-// TODO: Add a version handler which return the value of main.Version
+// Return application version
+func version(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{"Version": Version})
+}

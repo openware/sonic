@@ -2,6 +2,7 @@ package sonic
 
 import (
 	"github.com/openware/pkg/database"
+	"github.com/openware/pkg/mngapi"
 )
 
 // Config is the application configuration structure
@@ -12,5 +13,6 @@ type Config struct {
 		Host string `yaml:"host" env:"REDIS_HOST" env-description:"Redis Server host" env-default:"localhost"`
 		Port string `yaml:"port" env:"REDIS_PORT" env-description:"Redis Server port" env-default:"6379"`
 	} `yaml:"redis"`
-	Port string `env:"APP_PORT" env-description:"Port for HTTP service" env-default:"6009"`
+	Port   string        `env:"APP_PORT" env-description:"Port for HTTP service" env-default:"6009"`
+	MngAPI mngapi.Config `yaml:"mngapi"`
 }

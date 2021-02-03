@@ -15,3 +15,10 @@ database:
 redis:
   host: localhost
   port: 6379
+
+mngapi:
+  peatio_url: http://peatio:8080/api/v2/management
+  barong_url: http://barong:8080/api/v2/management
+  jwt_issuer: opendax
+  jwt_algo: RS256
+  jwt_private_key: 

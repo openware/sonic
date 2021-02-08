@@ -11,7 +11,8 @@ test:
 asset:
 	cd client && \
 		yarn install && \
-		./scripts/build.sh
+		./scripts/build.sh && \
+		cp -r build ../public/assets
 
 clean:
 	rm -rf bin/*

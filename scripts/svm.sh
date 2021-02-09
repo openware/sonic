@@ -8,6 +8,7 @@ svm() {
 
   local i
 
+  #  FIXME: loop is uselless?
   for i in "$@"
   do
     case $i in 
@@ -38,7 +39,7 @@ hander_err ()
 {
   local ERROR_MSG
   ERROR_MSG="${1}"
-
+  # FIXME: echo "=> Error: ${1}" ?
   echo "=> Error: ${ERROR_MSG}" 
 }
 

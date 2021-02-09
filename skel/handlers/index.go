@@ -85,5 +85,3 @@ func FilesPaths(pattern string) ([]string, error) {
 
 	return matches, nil
 }
-
-// TODO: Add a version handler which return the value of main.Version

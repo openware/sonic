@@ -7,6 +7,8 @@ svm_try_profile() {
   echo "${1}"
 }
 
+# FIXME: different code style for braces.
+
 #
 # Detect profile file if not specified as environment variable
 # (eg: PROFILE=~/.myprofile)
@@ -82,6 +84,7 @@ svm_install ()
   fi
 }
 
+# Probably a wrong name
 svm()
 {
   svm_clone

@@ -12,7 +12,7 @@ import (
 // LoaderFunc is used to parse seed raw data into model type
 type LoaderFunc func([]byte) (interface{}, error)
 
-// MetaModel is holding Registry informations
+// MetaModel is holding Registry information
 type MetaModel struct {
 	Name   string
 	Model  interface{}
@@ -59,7 +59,7 @@ func Seed() error {
 	return nil
 }
 
-// TODO replace Loader function by reading from a map
+// TODO: replace Loader function by reading from a map
 func readYamlSeed(meta MetaModel) error {
 	filename := fmt.Sprintf("config/seeds/%s.yml", meta.Name)
 	raw, err := ioutil.ReadFile(filename)

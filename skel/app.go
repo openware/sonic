@@ -58,11 +58,32 @@ func main() {
 	serveCmd := cli.NewSubCommand("serve", "Run the application")
 	serveCmd.Action(serve)
 
+	// FIXME: Some issues with ika usage:
+	// 1. Can I use env only? Do I specify some magic path for that?
+	// 2. If I have same config, in env and yaml, what do I get?
+	// 3. What about more controllable usage, like
+	//
+	// type Source interface {
+	//   func Load(config interface{}) error
+	// }
+	//
+	// ReadConfig(cfg interface{}, configSource ...Source) error
+	//
+	// configs override from left to right
+	// ika.ReadConfig(
+	// 	&App.Conf,
+	// 	ika.FileSource(jsonPath, ika.DecoderForFile(path)), - autodetect for json / yaml
+	// 	ika.FileSource(tomlPath, tomlDecoder),
+	// 	ika.EnvSource(),
+	// 	myCustomSource, - f.e., config from vault
+	// );
+	//
 	// read configuration from the file and environment variables
 	if err := ika.ReadConfig(cnf, &App.Conf); err != nil {
 		log.Fatalf("Error: %v\n", err)
 	}
-	// FIXME
+
+	// FIXME:
 	// We need to change logic here
 	// If database doesn't exist - you can not create it, because boot() will run migrations and raise an error.
 	//

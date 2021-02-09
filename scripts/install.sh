@@ -61,7 +61,7 @@ svm_clone ()
     git pull origin master
   else
     echo "=> Cloning svm as script to '$INSTALL_DIR'"
-    git clone --quiet --branch feature/copy-skel https://github.com/TeeSrisantitham/sonic.git  ~/.svm
+    git clone --quiet https://github.com/openware/sonic.git  ~/.svm
   fi
 }
 

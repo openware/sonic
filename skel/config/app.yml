@@ -26,6 +26,4 @@ mngapi:
 kaigara:
   vault-token: changeme
   vault-addr: http://localhost:8200
-  vault-app-name: appname
-  deployment-id: opendax
-  scopes: public,private,secrets
+  deployment-id: opendax_uat

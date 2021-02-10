@@ -33,7 +33,7 @@ func Setup(app *sonic.Runtime) {
 
 	SetPageRoutes(router)
 
-	vaultAPI := router.Group("/api/v2/vault")
+	vaultAPI := router.Group("/api/v2/admin")
 	vaultAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
 
 	vaultAPI.GET("/secrets", GetSecrets)

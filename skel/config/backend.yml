@@ -1,3 +1,4 @@
+# It is not a part of a config. What about /compose folder for development configs?
 version: "3"
 
 services:

@@ -28,6 +28,9 @@ type Page struct {
 	database.Timestamps
 }
 
+// FIXME: page methods will not look nice. Rails has modules, and in Go
+// it's better to create some service abstraction or transform to a regular function.
+
 // FindByPath find and return a page by path
 func (p *Page) FindByPath(path string) *Page {
 	page := Page{}

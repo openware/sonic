@@ -22,6 +22,7 @@ func Setup(app *sonic.Runtime) {
 	// Set up view engine
 	router.HTMLRender = ginview.Default()
 	Version = app.Version
+	kaigaraConfig := app.Conf.KaigaraConfig
 
 	// Serve static files
 	router.Static("/public", "./public")
@@ -31,6 +32,11 @@ func Setup(app *sonic.Runtime) {
 	router.GET("/version", version)
 
 	SetPageRoutes(router)
+
+	vaultAPI := router.Group("/api/v2/vault")
+	vaultAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
+
+	vaultAPI.GET("/secrets", GetSecrets)
 }
 
 // index render with master layer

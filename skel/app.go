@@ -58,6 +58,7 @@ func main() {
 	serveCmd := cli.NewSubCommand("serve", "Run the application")
 	serveCmd.Action(serve)
 
+	log.Printf("%+v", App.Conf.KaigaraConfig)
 	// FIXME: Some issues with ika usage:
 	// 1. Can I use env only? Do I specify some magic path for that?
 	// 2. If I have same config, in env and yaml, what do I get?

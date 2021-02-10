@@ -10,8 +10,9 @@ require (
 	github.com/gomarkdown/markdown v0.0.0-20201113031856-722100d81a8e
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/openware/kaigara v0.0.0-20210210124130-ee4330090e6f // indirect
 	github.com/openware/pkg/database v0.0.0-20210113145702-fb5cceb8f775
-	github.com/openware/pkg/ika v0.0.0-20210110002944-50c944a5e00d
+	github.com/openware/pkg/ika v0.0.0-20210204083929-709d949cb0ff
 	github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d
 	github.com/openware/sonic v0.0.0-20210122081705-11578d7d7463
 	github.com/stretchr/testify v1.6.1

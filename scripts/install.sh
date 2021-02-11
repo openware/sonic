@@ -52,15 +52,15 @@ svm_install_dir() {
 
 svm_clone() {
   local INSTALL_DIR
-  INSTALL_DIR="${HOME}/.svm"
+  INSTALL_DIR="$(svm_install_dir)"
 
   if [ -f "${INSTALL_DIR}/sonic.go" ]; then
     echo "=> svm is already installed in ${INSTALL_DIR}, trying to update the script"
-    cd ~/.svm
+    cd ${INSTALL_DIR}
     git pull origin master
   else
     echo "=> Cloning svm as script to '${INSTALL_DIR}'"
-    git clone --quiet https://github.com/openware/sonic.git ~/.svm
+    git clone --quiet https://github.com/openware/sonic.git ${INSTALL_DIR}
   fi
 }
 

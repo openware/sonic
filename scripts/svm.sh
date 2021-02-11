@@ -6,22 +6,16 @@ svm() {
     return
   fi
 
-  local i
+  local COMMAND
+  COMMAND="${1}"
 
-  case ${1} in
+  case ${COMMAND} in
   '-h' | 'help' | '--help')
     echo 'Usage:'
     echo '  svm --help                                  Show this message'
     echo '  svm create <project name>                   Install sonic'
     return
     ;;
-  *) ;;
-  esac
-
-  local COMMAND
-  COMMAND="${1}"
-
-  case $COMMAND in
   'create' | 'i')
     create "${2}"
     ;;

@@ -30,6 +30,14 @@ hander_err() {
   exit 1
 }
 
+svm_install_dir() {
+  if [ -n "${SVM_DIR}" ]; then
+    printf %s "${SVM_DIR}"
+  else
+    printf %s ${HOME}/.svm
+  fi
+}
+
 create() {
   local GITPATH
   GITPATH="${1}"
@@ -44,8 +52,10 @@ create() {
     echo "${DIR} already exists"
   else
     echo "=> Creating ${DIR}"
+    local SVM_INSTALL_DIR
+    SVM_INSTALL_DIR="$(svm_install_dir)"
 
-    cp -r $HOME/.svm/skel ${DIR}
+    cp -r ${SVM_INSTALL_DIR}/skel ${DIR}
     sed -i "" "s|github.com/openware/sonic/skel|${GITPATH}|g" ${DIR}/**/*.go ${DIR}/go.mod
 
     git init -q ${DIR}

@@ -35,8 +35,9 @@ func Setup(app *sonic.Runtime) {
 
 	vaultAPI := router.Group("/api/v2/admin")
 	vaultAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
-
 	vaultAPI.GET("/secrets", GetSecrets)
+
+	vaultAPI.PUT(":component/secret", SetSecret)
 }
 
 // index render with master layer

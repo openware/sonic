@@ -8,18 +8,15 @@ svm() {
 
   local i
 
-  #  FIXME: loop is uselless?
-  for i in "$@"; do
-    case $i in
-    '-h' | 'help' | '--help')
-      echo 'Usage:'
-      echo '  svm --help                                  Show this message'
-      echo '  svm create <project name>                   Install sonic'
-      return
-      ;;
-    *) ;;
-    esac
-  done
+  case ${1} in
+  '-h' | 'help' | '--help')
+    echo 'Usage:'
+    echo '  svm --help                                  Show this message'
+    echo '  svm create <project name>                   Install sonic'
+    return
+    ;;
+  *) ;;
+  esac
 
   local COMMAND
   COMMAND="${1}"
@@ -36,11 +33,12 @@ svm() {
 
 hander_err() {
   echo "=> Error: ${1}"
+  exit 1
 }
 
 create() {
   local GITPATH
-  GITPATH="$1"
+  GITPATH="${1}"
   local DIR
   local ADDR
 

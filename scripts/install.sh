@@ -7,8 +7,6 @@ svm_try_profile() {
   echo "${1}"
 }
 
-# FIXME: different code style for braces.
-
 #
 # Detect profile file if not specified as environment variable
 # (eg: PROFILE=~/.myprofile)
@@ -17,7 +15,7 @@ svm_try_profile() {
 #
 svm_detect_profile() {
   if [ "${PROFILE-}" = '/dev/null' ]; then
-    # the user has specifically requested NOT to have nvm touch their profile
+    # the user has specifically requested NOT to have svm touch their profile
     return
   fi
 
@@ -30,45 +28,43 @@ svm_detect_profile() {
   DETECTED_PROFILE=''
 
   if [ -n "${BASH_VERSION-}" ]; then
-    if [ -f "$HOME/.bashrc" ]; then
-      DETECTED_PROFILE="$HOME/.bashrc"
-    elif [ -f "$HOME/.bash_profile" ]; then
-      DETECTED_PROFILE="$HOME/.bash_profile"
+    if [ -f "${HOME}/.bashrc" ]; then
+      DETECTED_PROFILE="${HOME}/.bashrc"
+    elif [ -f "${HOME}/.bash_profile" ]; then
+      DETECTED_PROFILE="${HOME}/.bash_profile"
     fi
   elif [ -n "${ZSH_VERSION-}" ]; then
-    DETECTED_PROFILE="$HOME/.zshrc"
+    DETECTED_PROFILE="${HOME}/.zshrc"
   fi
 
-  if [ -n "$DETECTED_PROFILE" ]; then
-    echo "$DETECTED_PROFILE"
+  if [ -n "${DETECTED_PROFILE}" ]; then
+    echo "${DETECTED_PROFILE}"
   fi
 }
 
 svm_install_dir() {
-  if [ -n "$SVM_DIR" ]; then
+  if [ -n "${SVM_DIR}" ]; then
     printf %s "${SVM_DIR}"
   else
     printf %s ${HOME}/.svm
   fi
 }
 
-svm_clone ()
-{
+svm_clone() {
   local INSTALL_DIR
-  INSTALL_DIR="$HOME/.svm"
+  INSTALL_DIR="$(svm_install_dir)"
 
-  if [ -f "$INSTALL_DIR/sonic.go" ]; then
-    echo "=> svm is already installed in $INSTALL_DIR, trying to update the script"
-    cd ~/.svm
+  if [ -f "${INSTALL_DIR}/sonic.go" ]; then
+    echo "=> svm is already installed in ${INSTALL_DIR}, trying to update the script"
+    cd ${INSTALL_DIR}
     git pull origin master
   else
-    echo "=> Cloning svm as script to '$INSTALL_DIR'"
-    git clone --quiet https://github.com/openware/sonic.git  ~/.svm
+    echo "=> Cloning svm as script to '${INSTALL_DIR}'"
+    git clone --quiet https://github.com/openware/sonic.git ${INSTALL_DIR}
   fi
 }
 
-svm_install ()
-{
+svm_install() {
   local SVM_PROFILE
   SVM_PROFILE="$(svm_detect_profile)"
   local PROFILE_INSTALL_DIR
@@ -76,17 +72,16 @@ svm_install ()
 
   SOURCE_STR="\\nexport SVM_DIR=\"${PROFILE_INSTALL_DIR}\"\\n[ -s \"\$SVM_DIR/scripts/svm.sh\" ] && \\. \"\$SVM_DIR/scripts/svm.sh\""
 
-  if ! command grep -qc '/scripts/svm.sh' "$SVM_PROFILE"; then
-    echo "=> Appending svm source string to $SVM_PROFILE"
-    command printf "${SOURCE_STR}" >> "$SVM_PROFILE"
+  if ! command grep -qc '/scripts/svm.sh' "${SVM_PROFILE}"; then
+    echo "=> Appending svm source string to ${SVM_PROFILE}"
+    command printf "${SOURCE_STR}" >>"${SVM_PROFILE}"
   else
-    echo "=> svm is already append in $SVM_PROFILE"
+    echo "=> svm is already append in ${SVM_PROFILE}"
   fi
 }
 
 # Probably a wrong name
-svm()
-{
+svm() {
   svm_clone
   svm_install
 }

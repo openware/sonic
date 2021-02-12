@@ -20,6 +20,9 @@ var (
 	memoryCache map[string]map[string]interface{} = make(map[string]map[string]interface{})
 )
 
+// Initialize scope which goroutine will fetch every 30 seconds
+const scope = "public"
+
 // Setup set up routes to render view HTML
 func Setup(app *sonic.Runtime) {
 
@@ -52,63 +55,16 @@ func Setup(app *sonic.Runtime) {
 	// Initialize Vault Service
 	vaultService := vault.NewService(kaigaraConfig.VaultAddr, kaigaraConfig.VaultToken, "global", kaigaraConfig.DeploymentID)
 
-	go StartConfigCaching(vaultService)
+	// Define all public env on first system start
+	WriteCache(vaultService, scope, true)
+	go StartConfigCaching(vaultService, scope)
 }
 
 // StartConfigCaching will fetch latest data from vault every 30 seconds
-func StartConfigCaching(vaultService *vault.Service) {
+func StartConfigCaching(vaultService *vault.Service, scope string) {
 	for {
-		<-time.After(2 * time.Second)
-		go WriteCache(vaultService, "public")
-	}
-}
-
-// WriteCache read latest vault version and fetch keys values from vault
-func WriteCache(vaultService *vault.Service, scope string) {
-	appNames, err := vaultService.ListAppNames()
-	if err != nil {
-		panic(err)
-	}
-
-	for _, app := range appNames {
-		vaultService.SetAppName(app)
-		err = vaultService.LoadSecrets(scope)
-		if err != nil {
-			panic(err)
-		}
-
-		if memoryCache[app] == nil {
-			memoryCache[app] = make(map[string]interface{})
-		}
-
-		if memoryCache[app][scope] == nil {
-			memoryCache[app][scope] = make(map[string]interface{})
-		}
-
-		current, err := vaultService.GetCurrentVersion(scope)
-		if err != nil {
-			panic(err)
-		}
-
-		latest, err := vaultService.GetLatestVersion(scope)
-		if err != nil {
-			panic(err)
-		}
-
-		if current != latest {
-			keys, err := vaultService.ListSecrets(scope)
-			if err != nil {
-				panic(err)
-			}
-
-			for _, key := range keys {
-				val, err := vaultService.GetSecret(key, scope)
-				if err != nil {
-					panic(err)
-				}
-				memoryCache[app][scope].(map[string]interface{})[key] = val
-			}
-		}
+		<-time.After(30 * time.Second)
+		WriteCache(vaultService, scope, false)
 	}
 }
 

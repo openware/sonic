@@ -8,6 +8,7 @@ import (
 	"github.com/openware/kaigara/pkg/vault"
 )
 
+// SetSecret handles PUT '/api/v2/admin/secret'
 func SetSecret(ctx *gin.Context) {
 	kaigaraConfig, err := GetKaigaraConfig(ctx)
 	if err != nil {
@@ -47,7 +48,7 @@ func SetSecret(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
-// GetSecrets handles GET '/secrets'
+// GetSecrets handles GET '/api/v2/admin/secrets'
 func GetSecrets(ctx *gin.Context) {
 	kaigaraConfig, err := GetKaigaraConfig(ctx)
 	if err != nil {

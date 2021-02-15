@@ -12,6 +12,13 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_DATABASE: opendax_development
 
+  redis:
+    image: redis:4.0
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+
   vault:
     image: vault:1.6.1
     ports:
@@ -24,3 +31,4 @@ services:
 
 volumes:
   db_data:
+  redis_data:

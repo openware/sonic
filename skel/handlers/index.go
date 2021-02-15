@@ -6,14 +6,26 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
+	"github.com/openware/kaigara/pkg/vault"
 	"github.com/openware/sonic"
 )
 
 // Version variable stores Application Version from main package
-var Version string
+var (
+	Version     string
+	memoryCache = cache{
+		Data:  make(map[string]map[string]interface{}),
+		Mutex: sync.RWMutex{},
+	}
+)
+
+// Initialize scope which goroutine will fetch every 30 seconds
+const scope = "public"
 
 // Setup set up routes to render view HTML
 func Setup(app *sonic.Runtime) {
@@ -22,6 +34,7 @@ func Setup(app *sonic.Runtime) {
 	// Set up view engine
 	router.HTMLRender = ginview.Default()
 	Version = app.Version
+	kaigaraConfig := app.Conf.KaigaraConfig
 
 	// Serve static files
 	router.Static("/public", "./public")
@@ -31,6 +44,35 @@ func Setup(app *sonic.Runtime) {
 	router.GET("/version", version)
 
 	SetPageRoutes(router)
+
+	vaultAPI := router.Group("/api/v2/admin")
+	vaultAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
+	vaultAPI.GET("/secrets", GetSecrets)
+
+	vaultAPI.PUT(":component/secret", SetSecret)
+
+	vaultPublicAPI := router.Group("/api/v2/public")
+	vaultPublicAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
+
+	vaultPublicAPI.GET("/config", GetPublicConfigs)
+
+	// Initialize Vault Service
+	vaultService := vault.NewService(kaigaraConfig.VaultAddr, kaigaraConfig.VaultToken, "global", kaigaraConfig.DeploymentID)
+
+	// Define all public env on first system start
+	WriteCache(vaultService, scope, true)
+	go StartConfigCaching(vaultService, scope)
+}
+
+// StartConfigCaching will fetch latest data from vault every 30 seconds
+func StartConfigCaching(vaultService *vault.Service, scope string) {
+	for {
+		<-time.After(30 * time.Second)
+
+		memoryCache.Mutex.Lock()
+		WriteCache(vaultService, scope, false)
+		memoryCache.Mutex.Unlock()
+	}
 }
 
 // index render with master layer

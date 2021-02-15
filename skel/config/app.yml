@@ -22,3 +22,8 @@ mngapi:
   jwt_issuer: opendax
   jwt_algo: RS256
   jwt_private_key: 
+
+kaigara:
+  vault-token: changeme
+  vault-addr: http://localhost:8200
+  deployment-id: opendax_uat

@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/openware/ika"
 	"github.com/openware/pkg/database"
-	"github.com/openware/pkg/ika"
 	"github.com/openware/pkg/kli"
 	"github.com/openware/sonic"
 	"github.com/openware/sonic/skel/handlers"
@@ -27,14 +27,9 @@ func serve() error {
 
 // boot is executed before commands
 func boot() error {
-	var err error
-	App.DB, err = database.Connect(&App.Conf.Database)
-	if err != nil {
-		log.Fatal(err)
-	}
 	App.Version = Version
 	models.Setup(&App)
-	return models.Migrate()
+	return nil
 }
 
 func main() {
@@ -42,21 +37,9 @@ func main() {
 	cnf := "config/app.yml"
 	cli := kli.NewCli("sonic", "Fullstack micro application", Version)
 	cli.StringFlag("config", "Application yaml configuration file", &cnf)
-
-	dbCmd := cli.NewSubCommand("db", "Database commands")
-	dbCmd.NewSubCommand("create", "Create database").Action(func() error {
-		return database.Create(App.DB, App.Conf.Database.Name)
+	cli.PreRun(func(*kli.Cli) error {
+		return boot()
 	})
-	dbCmd.NewSubCommand("drop", "Drop database").Action(func() error {
-		return database.Drop(App.DB, App.Conf.Database.Name)
-	})
-	dbCmd.NewSubCommand("migrate", "Run database migration").Action(boot)
-	dbCmd.NewSubCommand("seed", "Run database seeding").Action(func() error {
-		return models.Seed()
-	})
-
-	serveCmd := cli.NewSubCommand("serve", "Run the application")
-	serveCmd.Action(serve)
 
 	// FIXME: Some issues with ika usage:
 	// 1. Can I use env only? Do I specify some magic path for that?
@@ -83,14 +66,27 @@ func main() {
 		log.Fatalf("Error: %v\n", err)
 	}
 
-	// FIXME:
-	// We need to change logic here
-	// If database doesn't exist - you can not create it, because boot() will run migrations and raise an error.
-	//
-	// Due to mysql compose config - opendax_development exists by default and we don't face this issue if we just started mysql.
-	if err := boot(); err != nil {
-		log.Fatalf("Error: %v\n", err)
-	}
+	dbCmd := cli.NewSubCommand("db", "Database commands")
+	dbCmd.NewSubCommand("create", "Create database").Action(func() error {
+		return database.Create(&App.Conf.Database)
+	})
+	dbCmd.NewSubCommand("drop", "Drop database").Action(func() error {
+		return database.Drop(&App.Conf.Database)
+	})
+	dbCmd.NewSubCommand("migrate", "Run database migration").Action(models.Migrate)
+	dbCmd.NewSubCommand("seed", "Run database seeding").Action(func() error {
+		return models.Seed()
+	})
+
+	serveCmd := cli.NewSubCommand("serve", "Run the application")
+	serveCmd.Action(func() error {
+		if err := models.Migrate(); err != nil {
+			return err
+		}
+
+		return serve()
+	})
+
 	if err := cli.Run(); err != nil {
 		log.Fatalf("Run: %v\n", err)
 	}

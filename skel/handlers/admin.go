@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/openware/kaigara/pkg/vault"
@@ -105,8 +104,4 @@ func GetSecrets(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, result)
-}
-
-func parseScopes(scopes string) []string {
-	return strings.Split(scopes, ",")
 }

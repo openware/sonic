@@ -2,11 +2,17 @@ package handlers
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	kaigara "github.com/openware/kaigara/pkg/config"
 	"github.com/openware/kaigara/pkg/vault"
 )
+
+type cache struct {
+	Mutex sync.RWMutex
+	Data  map[string]map[string]interface{}
+}
 
 // GetKaigaraConfig helper return kaigara co0nfig from gin context
 func GetKaigaraConfig(ctx *gin.Context) (*kaigara.KaigaraConfig, error) {
@@ -34,12 +40,12 @@ func WriteCache(vaultService *vault.Service, scope string, firstRun bool) {
 			panic(err)
 		}
 
-		if memoryCache[app] == nil {
-			memoryCache[app] = make(map[string]interface{})
+		if memoryCache.Data[app] == nil {
+			memoryCache.Data[app] = make(map[string]interface{})
 		}
 
-		if memoryCache[app][scope] == nil {
-			memoryCache[app][scope] = make(map[string]interface{})
+		if memoryCache.Data[app][scope] == nil {
+			memoryCache.Data[app][scope] = make(map[string]interface{})
 		}
 
 		current, err := vaultService.GetCurrentVersion(scope)
@@ -63,7 +69,7 @@ func WriteCache(vaultService *vault.Service, scope string, firstRun bool) {
 				if err != nil {
 					panic(err)
 				}
-				memoryCache[app][scope].(map[string]interface{})[key] = val
+				memoryCache.Data[app][scope].(map[string]interface{})[key] = val
 			}
 		}
 	}

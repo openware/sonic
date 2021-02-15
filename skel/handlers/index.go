@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/foolin/goview/supports/ginview"
@@ -17,7 +18,10 @@ import (
 // Version variable stores Application Version from main package
 var (
 	Version     string
-	memoryCache map[string]map[string]interface{} = make(map[string]map[string]interface{})
+	memoryCache = cache{
+		Data:  make(map[string]map[string]interface{}),
+		Mutex: sync.RWMutex{},
+	}
 )
 
 // Initialize scope which goroutine will fetch every 30 seconds
@@ -64,7 +68,10 @@ func Setup(app *sonic.Runtime) {
 func StartConfigCaching(vaultService *vault.Service, scope string) {
 	for {
 		<-time.After(30 * time.Second)
+
+		memoryCache.Mutex.Lock()
 		WriteCache(vaultService, scope, false)
+		memoryCache.Mutex.Unlock()
 	}
 }
 

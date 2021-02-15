@@ -8,5 +8,7 @@ import (
 
 // GetPublicConfigs returns public configs
 func GetPublicConfigs(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, memoryCache)
+	memoryCache.Mutex.RLock()
+	ctx.JSON(http.StatusOK, memoryCache.Data)
+	memoryCache.Mutex.RUnlock()
 }

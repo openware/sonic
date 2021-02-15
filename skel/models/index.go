@@ -6,7 +6,6 @@ import (
 	"log"
 
 	"github.com/openware/sonic"
-	"gorm.io/gorm"
 )
 
 // LoaderFunc is used to parse seed raw data into model type
@@ -20,7 +19,6 @@ type MetaModel struct {
 }
 
 // db pointer for sharing among models
-var db *gorm.DB
 var app *sonic.Runtime
 
 // Models contains the list of registered models of the application
@@ -30,7 +28,6 @@ var registry = []MetaModel{}
 // after connection is established on start server
 func Setup(apr *sonic.Runtime) {
 	app = apr
-	db = apr.DB
 }
 
 // Register a model to the framework
@@ -42,7 +39,7 @@ func Register(name string, model interface{}, ptr LoaderFunc) {
 func Migrate() error {
 	for _, meta := range registry {
 		log.Printf("Migrating %s\n", meta.Name)
-		if err := db.AutoMigrate(meta.Model); err != nil {
+		if err := app.GetDB().AutoMigrate(meta.Model); err != nil {
 			return err
 		}
 	}
@@ -70,6 +67,7 @@ func readYamlSeed(meta MetaModel) error {
 	if err != nil {
 		return err
 	}
-	tx := db.CreateInBatches(list, 1000)
+	tx := app.GetDB().CreateInBatches(list, 1000)
+
 	return tx.Error
 }

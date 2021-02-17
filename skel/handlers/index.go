@@ -58,6 +58,8 @@ func Setup(app *sonic.Runtime) {
 	router.GET("/page", emptyPage)
 	router.GET("/version", version)
 
+	router.NoRoute(notFound)
+
 	SetPageRoutes(router)
 
 	// Initialize Vault Service
@@ -124,6 +126,10 @@ func emptyPage(ctx *gin.Context) {
 // Return application version
 func version(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"Version": Version})
+}
+
+func notFound(ctx *gin.Context) {
+	ctx.Redirect(http.StatusMovedPermanently, "/public/index.html")
 }
 
 func FilesPaths(pattern string) ([]string, error) {

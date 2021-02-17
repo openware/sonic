@@ -10,6 +10,8 @@ test:
 
 asset:
 	cd client && \
+		rm -rf ../public/assets && \
+		rm -rf ./build && \
 		yarn install && \
 		./scripts/build.sh && \
 		cp -r build ../public/assets

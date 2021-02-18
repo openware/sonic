@@ -17,4 +17,12 @@ type Config struct {
 	Port          string                `env:"APP_PORT" env-description:"Port for HTTP service" env-default:"6009"`
 	MngAPI        mngapi.Config         `yaml:"mngapi"`
 	KaigaraConfig kaigara.KaigaraConfig `yaml:"kaigara"`
+	Vault         VaultConfig           `yaml:"vault"`
+	DeploymentID  string                `yaml:"deploymentID" env:"DEPLOYMENT_ID"`
+}
+
+// VaultConfig contains Vault-related configuration
+type VaultConfig struct {
+	Addr  string `yaml:"addr" env:"VAULT_ADDR" env-default:"http://localhost:8200"`
+	Token string `yaml:"token" env:"VAULT_TOKEN"`
 }

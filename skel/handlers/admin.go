@@ -133,6 +133,13 @@ func CreatePlatform(ctx *gin.Context) {
 		return
 	}
 
+	// Get kiagara config
+	kaigaraConfig, err := GetKaigaraConfig(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
 	// Get auth
 	auth, err := GetAuth(ctx)
 	if err != nil {
@@ -207,6 +214,27 @@ func CreatePlatform(ctx *gin.Context) {
 	// Check for API error
 	if res.StatusCode != http.StatusCreated {
 		ctx.JSON(res.StatusCode, resBody)
+		return
+	}
+
+	// Initialize the VaultService with global private vault
+	name := "global"
+	scope := "private"
+	key := "PLATFORM_ID"
+	vaultService := vault.NewService(kaigaraConfig.VaultAddr, kaigaraConfig.VaultToken, name, kaigaraConfig.DeploymentID)
+	vaultService.LoadSecrets(scope)
+
+	// Set secret
+	err = vaultService.SetSecret(key, params.Name, scope)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Save secret to global private vault
+	err = vaultService.SaveSecrets(scope)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

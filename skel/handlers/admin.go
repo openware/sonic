@@ -71,12 +71,6 @@ func SetSecret(ctx *gin.Context) {
 
 // GetSecrets handles GET '/api/v2/admin/secrets'
 func GetSecrets(ctx *gin.Context) {
-	vaultConfig, err := GetVaultConfig(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
 	// Get global vault service
 	vaultService, err := GetGlobalVaultService(ctx)
 	if err != nil {
@@ -135,13 +129,12 @@ func GetSecrets(ctx *gin.Context) {
 
 // CreatePlatform to handler '/api/v2/admin/platforms/new'
 func CreatePlatform(ctx *gin.Context) {
-	// Get app config
-	conf, err := GetAppConfig(ctx)
+	// Get Opendax config
+	opendaxConfig, err := GetOpendaxConfig(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	opendaxConfig := conf.OpendaxConfig
 
 	// Get global vault service
 	scope := "private"
@@ -173,7 +166,7 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 
 	// Get Opendax API endpoint from config
-	url, err := url.Parse(opendaxConfig.APIEndpoint)
+	url, err := url.Parse(opendaxConfig.Addr)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return

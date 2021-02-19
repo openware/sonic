@@ -36,11 +36,10 @@ func Setup(app *sonic.Runtime) {
 	router.HTMLRender = ginview.Default()
 	Version = app.Version
 	vaultConfig := app.Conf.Vault
+	opendaxConfig := app.Conf.Opendax
 	DeploymentID = app.Conf.DeploymentID
 
 	log.Println("DeploymentID in config:", app.Conf.DeploymentID)
-
-	kaigaraConfig := app.Conf.KaigaraConfig
 
 	// Serve static files
 	router.Static("/public", "./public")
@@ -52,10 +51,11 @@ func Setup(app *sonic.Runtime) {
 	SetPageRoutes(router)
 
 	// Initialize Vault Service
-	vaultService := vault.NewService(kaigaraConfig.VaultAddr, kaigaraConfig.VaultToken, "global", kaigaraConfig.DeploymentID)
+	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, "global", DeploymentID)
 
 	adminAPI := router.Group("/api/v2/admin")
-	adminAPI.Use(AppConfigMiddleware(&app.Conf))
+	adminAPI.Use(VaultConfigMiddleware(&vaultConfig))
+	adminAPI.Use(OpendaxConfigMiddleware(&opendaxConfig))
 	adminAPI.Use(GlobalVaultServiceMiddleware(vaultService))
 	adminAPI.Use(AuthMiddleware())
 	adminAPI.Use(AdminRoleMiddleware())
@@ -65,7 +65,7 @@ func Setup(app *sonic.Runtime) {
 	adminAPI.POST("/platforms/new", CreatePlatform)
 
 	publicAPI := router.Group("/api/v2/public")
-	publicAPI.Use(AppConfigMiddleware(&app.Conf))
+	publicAPI.Use(VaultConfigMiddleware(&vaultConfig))
 
 	publicAPI.GET("/config", GetPublicConfigs)
 

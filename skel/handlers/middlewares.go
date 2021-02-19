@@ -18,10 +18,10 @@ func VaultConfigMiddleware(conf *sonic.VaultConfig) gin.HandlerFunc {
 	}
 }
 
-// AppConfigMiddleware middleware to set kaigara config to gin context
-func AppConfigMiddleware(config *sonic.Config) gin.HandlerFunc {
+// OpendaxConfigMiddleware middleware to set kaigara config to gin context
+func OpendaxConfigMiddleware(config *sonic.OpendaxConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("Config", config)
+		c.Set("OpendaxConfig", config)
 		c.Next()
 	}
 }

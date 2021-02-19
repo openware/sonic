@@ -29,10 +29,5 @@ vault:
 
 deploymentID: opendax_uat
 
-kaigara:
-  vault-token: changeme
-  vault-addr: http://localhost:8200
-  deployment-id: opendax_uat
-
 opendax:
-  api_endpoint: http://opendax:6009
+  addr: http://opendax:6969

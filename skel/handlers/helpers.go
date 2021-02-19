@@ -25,11 +25,11 @@ func GetVaultConfig(ctx *gin.Context) (*sonic.VaultConfig, error) {
 	return config, nil
 }
 
-// GetAppConfig helper return kaigara config from gin context
-func GetAppConfig(ctx *gin.Context) (*sonic.Config, error) {
-	config, ok := ctx.MustGet("AppConfig").(*sonic.Config)
+// GetOpendaxConfig helper return kaigara config from gin context
+func GetOpendaxConfig(ctx *gin.Context) (*sonic.OpendaxConfig, error) {
+	config, ok := ctx.MustGet("OpendaxConfig").(*sonic.OpendaxConfig)
 	if !ok {
-		return nil, fmt.Errorf("App config is not found")
+		return nil, fmt.Errorf("Opendax config is not found")
 	}
 
 	return config, nil

@@ -15,7 +15,7 @@ require (
 	github.com/openware/pkg/ika v0.0.0-20210204083929-709d949cb0ff
 	github.com/openware/pkg/jwt v0.0.0-20210204083929-709d949cb0ff
 	github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d
-	github.com/openware/sonic v0.0.0-20210219111240-1f7d9d054d9d
+	github.com/openware/sonic v0.0.0-20210219120221-2c220ea19081
 	github.com/stretchr/testify v1.7.0
 	github.com/ugorji/go v1.2.3 // indirect
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect

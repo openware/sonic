@@ -163,8 +163,8 @@ github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d h1:4qKQDWBN67YlA2
 github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d/go.mod h1:GOlHexRI3ZB6oePaiqObLDwZ6/FmrmTb6hho62wehOE=
 github.com/openware/pkg/mngapi v0.0.0-20210204083929-709d949cb0ff h1:hEht6qOfZx/f0X1NKMpJH0cKma6vm70huT2EL/Y0igI=
 github.com/openware/pkg/mngapi v0.0.0-20210204083929-709d949cb0ff/go.mod h1:41rKG0I4Nnd9xPTHflQmz2NEGqORuFMZEbRhkY1SaxE=
-github.com/openware/sonic v0.0.0-20210219111240-1f7d9d054d9d h1:qflZz+azGcHR76Zh54UxtiazxwWBGjJnOthJmTcd/bk=
-github.com/openware/sonic v0.0.0-20210219111240-1f7d9d054d9d/go.mod h1:7g3AehDiFitgME+N3qaWsDn3HxkVGlRhe5Mf5EOZvUI=
+github.com/openware/sonic v0.0.0-20210219120221-2c220ea19081 h1:0bJyoqqdON2ED7umsz+cBJENxMgkg6dQRnalI1CXJ64=
+github.com/openware/sonic v0.0.0-20210219120221-2c220ea19081/go.mod h1:7g3AehDiFitgME+N3qaWsDn3HxkVGlRhe5Mf5EOZvUI=
 github.com/pascaldekloe/goe v0.1.0/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pierrec/lz4 v2.0.5+incompatible h1:2xWsjqPFWcplujydGg4WmhC/6fZqK42wMM8aXeqhl0I=
 github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
@@ -271,7 +271,6 @@ google.golang.org/protobuf v1.23.1-0.20200526195155-81db48ad09cc/go.mod h1:EGpAD
 google.golang.org/protobuf v1.25.0 h1:Ejskq+SyPohKW+1uil0JJMtmHCgJPJ/qWTxr8qp+R4c=
 google.golang.org/protobuf v1.25.0/go.mod h1:9JNX74DMeImyA3h4bdi1ymwjUzf21/xIlbajtzgsN7c=
 gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d/go.mod h1:cuepJuh7vyXfUyUwEgHQXw849cJrilpS5NeIjOWESAw=
-gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 h1:YR8cESwS4TdDjEe65xsg0ogRM/Nc3DYOhEAlW+xobZo=
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
@@ -287,7 +286,6 @@ gopkg.in/yaml.v2 v2.2.4/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.2.8/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.4.0 h1:D8xgwECY7CYvx+Y2n4sBz93Jn9JRvxdiyyo8CTfuKaY=
 gopkg.in/yaml.v2 v2.4.0/go.mod h1:RDklbk79AGWmwhnvt/jBztapEOGDOx6ZbXqjP6csGnQ=
-gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

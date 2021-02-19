@@ -19,10 +19,16 @@ type Config struct {
 	KaigaraConfig kaigara.KaigaraConfig `yaml:"kaigara"`
 	Vault         VaultConfig           `yaml:"vault"`
 	DeploymentID  string                `yaml:"deploymentID" env:"DEPLOYMENT_ID"`
+	Opendax       OpendaxConfig         `yaml:"opendax"`
 }
 
 // VaultConfig contains Vault-related configuration
 type VaultConfig struct {
 	Addr  string `yaml:"addr" env:"VAULT_ADDR" env-default:"http://localhost:8200"`
 	Token string `yaml:"token" env:"VAULT_TOKEN"`
+}
+
+// OpendaxConfig is the configuration for opendax cloud
+type OpendaxConfig struct {
+	APIEndpoint string `yaml:"api_endpoint" env:"OPENDAX_API_ENDPOINT" env-description:"Opendax API endpoint" env-default:"http://opendax:6009"`
 }

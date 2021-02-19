@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"path"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -125,6 +126,14 @@ type CreatePlatformParams struct {
 
 // CreatePlatform to handler '/api/v2/admin/platforms/new'
 func CreatePlatform(ctx *gin.Context) {
+	// Get opendax config
+	opendaxConfig, err := GetOpendaxConfig(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get auth
 	auth, err := GetAuth(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
@@ -137,18 +146,20 @@ func CreatePlatform(ctx *gin.Context) {
 		return
 	}
 
+	// Get request parameters
 	var params CreatePlatformParams
 	if err := ctx.ShouldBindJSON(&params); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 
-	// TODO: Get opendax-cloud url from config
-	url, err := url.Parse("http://www.test.com")
+	// Get Opendax API endpoint from config
+	url, err := url.Parse(opendaxConfig.APIEndpoint)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
+	url.Path = path.Join(url.Path, "/api/v2/opx/platforms/new")
 
 	// Request payload
 	payload := map[string]interface{}{
@@ -195,7 +206,7 @@ func CreatePlatform(ctx *gin.Context) {
 
 	// Check for API error
 	if res.StatusCode != http.StatusCreated {
-		ctx.JSON(http.StatusBadRequest, resBody)
+		ctx.JSON(res.StatusCode, resBody)
 		return
 	}
 

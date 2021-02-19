@@ -25,6 +25,16 @@ func GetVaultConfig(ctx *gin.Context) (*sonic.VaultConfig, error) {
 	return config, nil
 }
 
+// GetOpendaxConfig helper return opendax config from gin context
+func GetOpendaxConfig(ctx *gin.Context) (*sonic.OpendaxConfig, error) {
+	config, ok := ctx.MustGet("OpendaxConfig").(*sonic.OpendaxConfig)
+	if !ok {
+		return nil, fmt.Errorf("Opendax config is not found")
+	}
+
+	return config, nil
+}
+
 // GetAuth helper return auth from gin context
 func GetAuth(ctx *gin.Context) (*jwt.Auth, error) {
 	auth, ok := ctx.MustGet("auth").(*jwt.Auth)

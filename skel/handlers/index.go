@@ -40,6 +40,9 @@ func Setup(app *sonic.Runtime) {
 
 	log.Println("DeploymentID in config:", app.Conf.DeploymentID)
 
+	kaigaraConfig := app.Conf.KaigaraConfig
+	opendaxConfig := app.Conf.OpendaxConfig
+
 	// Serve static files
 	router.Static("/public", "./public")
 
@@ -51,6 +54,7 @@ func Setup(app *sonic.Runtime) {
 
 	adminAPI := router.Group("/api/v2/admin")
 	adminAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
+	adminAPI.Use(OpendaxConfigMiddleware(&opendaxConfig))
 	adminAPI.Use(AuthMiddleware())
 	adminAPI.Use(AdminRoleMiddleware())
 

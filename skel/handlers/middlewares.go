@@ -17,6 +17,14 @@ func VaultConfigMiddleware(conf *sonic.VaultConfig) gin.HandlerFunc {
 	}
 }
 
+// OpendaxConfigMiddleware middleware to set opendax config to gin context
+func OpendaxConfigMiddleware(config *sonic.OpendaxConfig) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("OpendaxConfig", config)
+		c.Next()
+	}
+}
+
 // AuthMiddleware middleware to verify bearer token
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -41,7 +41,6 @@ func Setup(app *sonic.Runtime) {
 	log.Println("DeploymentID in config:", app.Conf.DeploymentID)
 
 	kaigaraConfig := app.Conf.KaigaraConfig
-	opendaxConfig := app.Conf.OpendaxConfig
 
 	// Serve static files
 	router.Static("/public", "./public")
@@ -56,8 +55,7 @@ func Setup(app *sonic.Runtime) {
 	vaultService := vault.NewService(kaigaraConfig.VaultAddr, kaigaraConfig.VaultToken, "global", kaigaraConfig.DeploymentID)
 
 	adminAPI := router.Group("/api/v2/admin")
-	adminAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
-	adminAPI.Use(OpendaxConfigMiddleware(&opendaxConfig))
+	adminAPI.Use(AppConfigMiddleware(&app.Conf))
 	adminAPI.Use(GlobalVaultServiceMiddleware(vaultService))
 	adminAPI.Use(AuthMiddleware())
 	adminAPI.Use(AdminRoleMiddleware())
@@ -67,7 +65,7 @@ func Setup(app *sonic.Runtime) {
 	adminAPI.POST("/platforms/new", CreatePlatform)
 
 	publicAPI := router.Group("/api/v2/public")
-	publicAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
+	publicAPI.Use(AppConfigMiddleware(&app.Conf))
 
 	publicAPI.GET("/config", GetPublicConfigs)
 

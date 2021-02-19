@@ -36,7 +36,6 @@ func SetSecret(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-
 	appName := ctx.Param("component")
 	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, appName, DeploymentID)
 
@@ -136,12 +135,13 @@ func GetSecrets(ctx *gin.Context) {
 
 // CreatePlatform to handler '/api/v2/admin/platforms/new'
 func CreatePlatform(ctx *gin.Context) {
-	// Get opendax config
-	opendaxConfig, err := GetOpendaxConfig(ctx)
+	// Get app config
+	conf, err := GetAppConfig(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+	opendaxConfig := conf.OpendaxConfig
 
 	// Get global vault service
 	scope := "private"

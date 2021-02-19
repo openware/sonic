@@ -25,11 +25,11 @@ func GetVaultConfig(ctx *gin.Context) (*sonic.VaultConfig, error) {
 	return config, nil
 }
 
-// GetOpendaxConfig helper return opendax config from gin context
-func GetOpendaxConfig(ctx *gin.Context) (*sonic.OpendaxConfig, error) {
-	config, ok := ctx.MustGet("OpendaxConfig").(*sonic.OpendaxConfig)
+// GetAppConfig helper return kaigara config from gin context
+func GetAppConfig(ctx *gin.Context) (*sonic.Config, error) {
+	config, ok := ctx.MustGet("AppConfig").(*sonic.Config)
 	if !ok {
-		return nil, fmt.Errorf("Opendax config is not found")
+		return nil, fmt.Errorf("App config is not found")
 	}
 
 	return config, nil
@@ -59,7 +59,7 @@ func GetGlobalVaultService(ctx *gin.Context) (*vault.Service, error) {
 func GetSonicPublicKey(ctx *gin.Context) (string, error) {
 	publicKey, ok := ctx.MustGet("sonic_public_key").(string)
 	if !ok {
-		return nil, fmt.Errorf("Sonic public key is not found")
+		return "", fmt.Errorf("Sonic public key is not found")
 	}
 
 	return publicKey, nil

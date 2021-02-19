@@ -18,10 +18,10 @@ func VaultConfigMiddleware(conf *sonic.VaultConfig) gin.HandlerFunc {
 	}
 }
 
-// OpendaxConfigMiddleware middleware to set opendax config to gin context
-func OpendaxConfigMiddleware(config *sonic.OpendaxConfig) gin.HandlerFunc {
+// AppConfigMiddleware middleware to set kaigara config to gin context
+func AppConfigMiddleware(config *sonic.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("OpendaxConfig", config)
+		c.Set("Config", config)
 		c.Next()
 	}
 }
@@ -48,6 +48,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		// Get global vault service
 		vaultService, err := GetGlobalVaultService(c)
 		if err != nil {
+			c.Abort()
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
@@ -57,7 +58,14 @@ func AuthMiddleware() gin.HandlerFunc {
 		vaultService.LoadSecrets(scope)
 		result, err := vaultService.GetSecret(key, scope)
 		if err != nil {
+			c.Abort()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		if result == nil {
+			c.Abort()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Sonic public key not found"})
 			return
 		}
 

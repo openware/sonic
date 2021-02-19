@@ -163,8 +163,8 @@ github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d h1:4qKQDWBN67YlA2
 github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d/go.mod h1:GOlHexRI3ZB6oePaiqObLDwZ6/FmrmTb6hho62wehOE=
 github.com/openware/pkg/mngapi v0.0.0-20210204083929-709d949cb0ff h1:hEht6qOfZx/f0X1NKMpJH0cKma6vm70huT2EL/Y0igI=
 github.com/openware/pkg/mngapi v0.0.0-20210204083929-709d949cb0ff/go.mod h1:41rKG0I4Nnd9xPTHflQmz2NEGqORuFMZEbRhkY1SaxE=
-github.com/openware/sonic v0.0.0-20210218125702-4178a31c18b0 h1:AMkn9+5bxXTgfDEr13l8k9fRqCQ0UYgK3HsNJm8bdkI=
-github.com/openware/sonic v0.0.0-20210218125702-4178a31c18b0/go.mod h1:7g3AehDiFitgME+N3qaWsDn3HxkVGlRhe5Mf5EOZvUI=
+github.com/openware/sonic v0.0.0-20210219111240-1f7d9d054d9d h1:qflZz+azGcHR76Zh54UxtiazxwWBGjJnOthJmTcd/bk=
+github.com/openware/sonic v0.0.0-20210219111240-1f7d9d054d9d/go.mod h1:7g3AehDiFitgME+N3qaWsDn3HxkVGlRhe5Mf5EOZvUI=
 github.com/pascaldekloe/goe v0.1.0/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pierrec/lz4 v2.0.5+incompatible h1:2xWsjqPFWcplujydGg4WmhC/6fZqK42wMM8aXeqhl0I=
 github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=

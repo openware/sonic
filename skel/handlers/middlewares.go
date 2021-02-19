@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/openware/kaigara/pkg/vault"
 	"github.com/openware/pkg/jwt"
 	"github.com/openware/sonic"
 )
@@ -25,6 +26,14 @@ func OpendaxConfigMiddleware(config *sonic.OpendaxConfig) gin.HandlerFunc {
 	}
 }
 
+// GlobalVaultServiceMiddleware middleware to set global vault service to gin context
+func GlobalVaultServiceMiddleware(vaultService *vault.Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("GlobalVaultService", vaultService)
+		c.Next()
+	}
+}
+
 // AuthMiddleware middleware to verify bearer token
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -36,17 +45,28 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Get PublicKey from header
-		publicKey := c.GetHeader("PublicKey")
-		if publicKey == "" {
-			c.Abort()
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "PublicKey is missing in header"})
+		// Get global vault service
+		vaultService, err := GetGlobalVaultService(c)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
 
+		key := "sonic_public_key"
+		scope := "private"
+		vaultService.LoadSecrets(scope)
+		result, err := vaultService.GetSecret(key, scope)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Save public key to gin context
+		c.Set("sonic_public_key", result.(string))
+
 		// Load public key
 		keyStore := jwt.KeyStore{}
-		keyStore.LoadPublicKeyFromString(publicKey)
+		keyStore.LoadPublicKeyFromString(result.(string))
 
 		// Parse token
 		jwtToken := authHeader[1]

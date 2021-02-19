@@ -52,9 +52,13 @@ func Setup(app *sonic.Runtime) {
 
 	SetPageRoutes(router)
 
+	// Initialize Vault Service
+	vaultService := vault.NewService(kaigaraConfig.VaultAddr, kaigaraConfig.VaultToken, "global", kaigaraConfig.DeploymentID)
+
 	adminAPI := router.Group("/api/v2/admin")
 	adminAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
 	adminAPI.Use(OpendaxConfigMiddleware(&opendaxConfig))
+	adminAPI.Use(GlobalVaultServiceMiddleware(vaultService))
 	adminAPI.Use(AuthMiddleware())
 	adminAPI.Use(AdminRoleMiddleware())
 
@@ -66,9 +70,6 @@ func Setup(app *sonic.Runtime) {
 	publicAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
 
 	publicAPI.GET("/config", GetPublicConfigs)
-
-	// Initialize Vault Service
-	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, "global", DeploymentID)
 
 	// Define all public env on first system start
 	WriteCache(vaultService, scope, true)

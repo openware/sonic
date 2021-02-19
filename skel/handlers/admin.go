@@ -20,8 +20,8 @@ const (
 
 // CreatePlatformParams from request parameter
 type CreatePlatformParams struct {
-	Name        string `json:"name" binding:"requied"`
-	PlatformURL string `json:"platform_url" binding:"requied"`
+	PlatformName string `json:"platform_name" binding:"requied"`
+	PlatformURL  string `json:"platform_url" binding:"requied"`
 }
 
 // CreatePlatformResponse store response from new platform
@@ -78,8 +78,13 @@ func GetSecrets(ctx *gin.Context) {
 		return
 	}
 
-	// Initialize the VaultService without an appName since we'll use all of them
-	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, "global", DeploymentID)
+	// Get global vault service
+	vaultService, err := GetGlobalVaultService(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
 	scopes := []string{"public", "private", "secret"}
 
 	appNames, err := vaultService.ListAppNames()
@@ -138,8 +143,10 @@ func CreatePlatform(ctx *gin.Context) {
 		return
 	}
 
-	// Get kiagara config
-	kaigaraConfig, err := GetKaigaraConfig(ctx)
+	// Get global vault service
+	scope := "private"
+	key := "platform_id"
+	vaultService, err := GetGlobalVaultService(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -173,11 +180,18 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 	url.Path = path.Join(url.Path, "/api/v2/opx/platforms/new")
 
+	// Get Sonic public key
+	publicKey, err := GetSonicPublicKey(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
 	// Request payload
 	payload := map[string]interface{}{
 		"email":         auth.Email,
-		"platform_name": params.Name,
-		"public_key":    ctx.GetHeader("PublicKey"),
+		"platform_name": params.PlatformName,
+		"public_key":    publicKey,
 		"platform_url":  params.PlatformURL,
 	}
 
@@ -229,21 +243,17 @@ func CreatePlatform(ctx *gin.Context) {
 		return
 	}
 
-	// Initialize the VaultService with global private vault
-	appName := "global"
-	scope := "private"
-	key := "platform_id"
-	vaultService := vault.NewService(kaigaraConfig.VaultAddr, kaigaraConfig.VaultToken, appName, kaigaraConfig.DeploymentID)
+	// Load secret
 	vaultService.LoadSecrets(scope)
 
-	// Set secret
+	// Set Platform ID to secret
 	err = vaultService.SetSecret(key, platform.PID, scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Save secret to global private vault
+	// Save secret to vault
 	err = vaultService.SaveSecrets(scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

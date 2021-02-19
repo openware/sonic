@@ -45,6 +45,26 @@ func GetAuth(ctx *gin.Context) (*jwt.Auth, error) {
 	return auth, nil
 }
 
+// GetGlobalVaultService helper return global vault service from gin context
+func GetGlobalVaultService(ctx *gin.Context) (*vault.Service, error) {
+	vaultService, ok := ctx.MustGet("GlobalVaultService").(*vault.Service)
+	if !ok {
+		return nil, fmt.Errorf("Global vault service is not found")
+	}
+
+	return vaultService, nil
+}
+
+// GetSonicPublicKey helper return sonic public key from gin context
+func GetSonicPublicKey(ctx *gin.Context) (string, error) {
+	publicKey, ok := ctx.MustGet("sonic_public_key").(string)
+	if !ok {
+		return nil, fmt.Errorf("Sonic public key is not found")
+	}
+
+	return publicKey, nil
+}
+
 // WriteCache read latest vault version and fetch keys values from vault
 // 'firstRun' variable will help to run writing to cache on first system start
 // as on the start latest and current versions are the same

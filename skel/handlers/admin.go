@@ -18,6 +18,17 @@ const (
 	RequestTimeout = time.Duration(30 * time.Second)
 )
 
+// CreatePlatformParams from request parameter
+type CreatePlatformParams struct {
+	Name        string `json:"name" binding:"requied"`
+	PlatformURL string `json:"platform_url" binding:"requied"`
+}
+
+// CreatePlatformResponse store response from new platform
+type CreatePlatformResponse struct {
+	PID string `json:"pid"`
+}
+
 // SetSecret handles PUT '/api/v2/admin/secret'
 func SetSecret(ctx *gin.Context) {
 	vaultConfig, err := GetVaultConfig(ctx)
@@ -118,12 +129,6 @@ func GetSecrets(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
-// CreatePlatformParams from request parameter
-type CreatePlatformParams struct {
-	Name        string `json:"name" binding:"requied"`
-	PlatformURL string `json:"platform_url" binding:"requied"`
-}
-
 // CreatePlatform to handler '/api/v2/admin/platforms/new'
 func CreatePlatform(ctx *gin.Context) {
 	// Get opendax config
@@ -170,11 +175,10 @@ func CreatePlatform(ctx *gin.Context) {
 
 	// Request payload
 	payload := map[string]interface{}{
-		"pid":          params.Name,
-		"uid":          auth.UID,
-		"email":        auth.Email,
-		"public_key":   ctx.GetHeader("PublicKey"),
-		"platform_url": params.PlatformURL,
+		"email":         auth.Email,
+		"platform_name": params.Name,
+		"public_key":    ctx.GetHeader("PublicKey"),
+		"platform_url":  params.PlatformURL,
 	}
 
 	// Convert payload to json string
@@ -217,15 +221,23 @@ func CreatePlatform(ctx *gin.Context) {
 		return
 	}
 
+	// Get platform from response
+	platform := CreatePlatformResponse{}
+	err = json.Unmarshal(resBody, &platform)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	// Initialize the VaultService with global private vault
-	name := "global"
+	appName := "global"
 	scope := "private"
-	key := "PLATFORM_ID"
-	vaultService := vault.NewService(kaigaraConfig.VaultAddr, kaigaraConfig.VaultToken, name, kaigaraConfig.DeploymentID)
+	key := "platform_id"
+	vaultService := vault.NewService(kaigaraConfig.VaultAddr, kaigaraConfig.VaultToken, appName, kaigaraConfig.DeploymentID)
 	vaultService.LoadSecrets(scope)
 
 	// Set secret
-	err = vaultService.SetSecret(key, params.Name, scope)
+	err = vaultService.SetSecret(key, platform.PID, scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -13,6 +13,7 @@ require (
 	github.com/openware/kaigara/pkg/vault v0.0.0-20210212170810-9bfdbc149035
 	github.com/openware/pkg/database v0.0.0-20210113145702-fb5cceb8f775
 	github.com/openware/pkg/ika v0.0.0-20210204083929-709d949cb0ff
+	github.com/openware/pkg/jwt v0.0.0-20210204083929-709d949cb0ff
 	github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d
 	github.com/openware/sonic v0.0.0-20210218125702-4178a31c18b0
 	github.com/stretchr/testify v1.7.0

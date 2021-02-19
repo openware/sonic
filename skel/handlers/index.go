@@ -49,18 +49,19 @@ func Setup(app *sonic.Runtime) {
 
 	SetPageRoutes(router)
 
-	vaultMiddleware := VaultConfigMiddleware(&vaultConfig)
+	adminAPI := router.Group("/api/v2/admin")
+	adminAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
+	adminAPI.Use(AuthMiddleware())
+	adminAPI.Use(AdminRoleMiddleware())
 
-	vaultAPI := router.Group("/api/v2/admin")
-	vaultAPI.Use(vaultMiddleware)
-	vaultAPI.GET("/secrets", GetSecrets)
+	adminAPI.GET("/secrets", GetSecrets)
+	adminAPI.PUT(":component/secret", SetSecret)
+	adminAPI.POST("/platforms/new", CreatePlatform)
 
-	vaultAPI.PUT(":component/secret", SetSecret)
+	publicAPI := router.Group("/api/v2/public")
+	publicAPI.Use(KaigaraConfigMiddleware(&kaigaraConfig))
 
-	vaultPublicAPI := router.Group("/api/v2/public")
-	vaultPublicAPI.Use(vaultMiddleware)
-
-	vaultPublicAPI.GET("/config", GetPublicConfigs)
+	publicAPI.GET("/config", GetPublicConfigs)
 
 	// Initialize Vault Service
 	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, "global", DeploymentID)

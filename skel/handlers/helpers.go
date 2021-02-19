@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/openware/kaigara/pkg/vault"
+	"github.com/openware/pkg/jwt"
 	"github.com/openware/sonic"
 )
 
@@ -22,6 +23,16 @@ func GetVaultConfig(ctx *gin.Context) (*sonic.VaultConfig, error) {
 	}
 
 	return config, nil
+}
+
+// GetAuth helper return auth from gin context
+func GetAuth(ctx *gin.Context) (*jwt.Auth, error) {
+	auth, ok := ctx.MustGet("auth").(*jwt.Auth)
+	if !ok {
+		return nil, fmt.Errorf("Auth is not found")
+	}
+
+	return auth, nil
 }
 
 // WriteCache read latest vault version and fetch keys values from vault

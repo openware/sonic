@@ -12,6 +12,7 @@ import (
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
 	"github.com/openware/kaigara/pkg/vault"
+	"github.com/openware/pkg/utils"
 	"github.com/openware/sonic"
 )
 
@@ -23,6 +24,10 @@ var (
 		Data:  make(map[string]map[string]interface{}),
 		Mutex: sync.RWMutex{},
 	}
+	JWTPublicKey    string
+	SonicPublicKey  string
+	PeatioPublicKey string
+	BarongPublicKey string
 )
 
 // Initialize scope which goroutine will fetch every 30 seconds
@@ -30,16 +35,23 @@ const scope = "public"
 
 // Setup set up routes to render view HTML
 func Setup(app *sonic.Runtime) {
-
-	router := app.Srv
-	// Set up view engine
-	router.HTMLRender = ginview.Default()
+	// Get config and env
 	Version = app.Version
+	DeploymentID = app.Conf.DeploymentID
+	JWTPublicKey = utils.GetEnv("JWT_PUBLIC_KEY", "")
+	SonicPublicKey = utils.GetEnv("SONIC_PUBLIC_KEY", "")
+	PeatioPublicKey = utils.GetEnv("PEATIO_PUBLIC_KEY", "")
+	BarongPublicKey = utils.GetEnv("BARONG_PUBLIC_KEY", "")
 	vaultConfig := app.Conf.Vault
 	opendaxConfig := app.Conf.Opendax
-	DeploymentID = app.Conf.DeploymentID
 
 	log.Println("DeploymentID in config:", app.Conf.DeploymentID)
+
+	// Get app router
+	router := app.Srv
+
+	// Set up view engine
+	router.HTMLRender = ginview.Default()
 
 	// Serve static files
 	router.Static("/public", "./public")

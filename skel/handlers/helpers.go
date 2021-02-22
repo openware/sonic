@@ -55,16 +55,6 @@ func GetGlobalVaultService(ctx *gin.Context) (*vault.Service, error) {
 	return vaultService, nil
 }
 
-// GetSonicPublicKey helper return sonic public key from gin context
-func GetSonicPublicKey(ctx *gin.Context) (string, error) {
-	publicKey, ok := ctx.MustGet("sonic_public_key").(string)
-	if !ok {
-		return "", fmt.Errorf("Sonic public key is not found")
-	}
-
-	return publicKey, nil
-}
-
 // WriteCache read latest vault version and fetch keys values from vault
 // 'firstRun' variable will help to run writing to cache on first system start
 // as on the start latest and current versions are the same

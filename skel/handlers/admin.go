@@ -173,19 +173,14 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 	url.Path = path.Join(url.Path, "/api/v2/opx/platforms/new")
 
-	// Get Sonic public key
-	publicKey, err := GetSonicPublicKey(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
 	// Request payload
 	payload := map[string]interface{}{
-		"email":         auth.Email,
-		"platform_name": params.PlatformName,
-		"public_key":    publicKey,
-		"platform_url":  params.PlatformURL,
+		"email":             auth.Email,
+		"platform_name":     params.PlatformName,
+		"platform_url":      params.PlatformURL,
+		"sonic_public_key":  SonicPublicKey,
+		"peatio_public_key": PeatioPublicKey,
+		"barong_public_key": BarongPublicKey,
 	}
 
 	// Convert payload to json string

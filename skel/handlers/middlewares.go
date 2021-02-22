@@ -36,6 +36,10 @@ func GlobalVaultServiceMiddleware(vaultService *vault.Service) gin.HandlerFunc {
 
 // AuthMiddleware middleware to verify bearer token
 func AuthMiddleware() gin.HandlerFunc {
+	// Load public key
+	keyStore := jwt.KeyStore{}
+	keyStore.LoadPublicKeyFromString(JWTPublicKey)
+
 	return func(c *gin.Context) {
 		// Get bearer token from header
 		authHeader := strings.Split(c.GetHeader("Authorization"), "Bearer ")
@@ -44,37 +48,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Authorization header not found"})
 			return
 		}
-
-		// Get global vault service
-		vaultService, err := GetGlobalVaultService(c)
-		if err != nil {
-			c.Abort()
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-			return
-		}
-
-		key := "sonic_public_key"
-		scope := "private"
-		vaultService.LoadSecrets(scope)
-		result, err := vaultService.GetSecret(key, scope)
-		if err != nil {
-			c.Abort()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-
-		if result == nil {
-			c.Abort()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Sonic public key not found"})
-			return
-		}
-
-		// Save public key to gin context
-		c.Set("sonic_public_key", result.(string))
-
-		// Load public key
-		keyStore := jwt.KeyStore{}
-		keyStore.LoadPublicKeyFromString(result.(string))
 
 		// Parse token
 		jwtToken := authHeader[1]

@@ -24,7 +24,6 @@ var (
 		Data:  make(map[string]map[string]interface{}),
 		Mutex: sync.RWMutex{},
 	}
-	JWTPublicKey    string
 	SonicPublicKey  string
 	PeatioPublicKey string
 	BarongPublicKey string
@@ -38,7 +37,6 @@ func Setup(app *sonic.Runtime) {
 	// Get config and env
 	Version = app.Version
 	DeploymentID = app.Conf.DeploymentID
-	JWTPublicKey = utils.GetEnv("JWT_PUBLIC_KEY", "")
 	SonicPublicKey = utils.GetEnv("SONIC_PUBLIC_KEY", "")
 	PeatioPublicKey = utils.GetEnv("PEATIO_PUBLIC_KEY", "")
 	BarongPublicKey = utils.GetEnv("BARONG_PUBLIC_KEY", "")
@@ -69,8 +67,7 @@ func Setup(app *sonic.Runtime) {
 	adminAPI.Use(VaultServiceMiddleware(vaultService))
 	adminAPI.Use(OpendaxConfigMiddleware(&opendaxConfig))
 	adminAPI.Use(AuthMiddleware())
-	adminAPI.Use(AdminRoleMiddleware())
-
+	adminAPI.Use(RBACMiddleware([]string{"superadmin"}))
 	adminAPI.GET("/secrets", GetSecrets)
 	adminAPI.PUT(":component/secret", SetSecret)
 	adminAPI.POST("/platforms/new", CreatePlatform)

@@ -30,7 +30,10 @@ func VaultServiceMiddleware(vaultService *vault.Service) gin.HandlerFunc {
 func AuthMiddleware() gin.HandlerFunc {
 	// Load public key
 	keyStore := jwt.KeyStore{}
-	keyStore.LoadPublicKeyFromString(JWTPublicKey)
+	err := keyStore.LoadPublicKeyFromString(BarongPublicKey)
+	if err != nil {
+		panic(err)
+	}
 
 	return func(c *gin.Context) {
 		// Get bearer token from header
@@ -57,8 +60,8 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-// AdminRoleMiddleware middleware to verity admin role
-func AdminRoleMiddleware() gin.HandlerFunc {
+// RBACMiddleware middleware to verity admin role
+func RBACMiddleware(roles []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth, err := GetAuth(c)
 		if err != nil {
@@ -67,7 +70,7 @@ func AdminRoleMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		if !isAdminRole(auth.Role) {
+		if !isInRole(auth.Role, roles) {
 			c.Abort()
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
@@ -77,9 +80,7 @@ func AdminRoleMiddleware() gin.HandlerFunc {
 	}
 }
 
-func isAdminRole(role string) bool {
-	var roles = []string{"superadmin", "admin", "accountant", "compliance", "support", "technical"}
-
+func isInRole(role string, roles []string) bool {
 	for _, v := range roles {
 		if v == role {
 			return true

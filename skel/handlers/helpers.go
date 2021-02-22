@@ -15,16 +15,6 @@ type cache struct {
 	Data  map[string]map[string]interface{}
 }
 
-// GetVaultConfig helper returns Vault config from gin context
-func GetVaultConfig(ctx *gin.Context) (*sonic.VaultConfig, error) {
-	config, ok := ctx.MustGet("VaultConfig").(*sonic.VaultConfig)
-	if !ok {
-		return nil, fmt.Errorf("Vault config is not found")
-	}
-
-	return config, nil
-}
-
 // GetOpendaxConfig helper return kaigara config from gin context
 func GetOpendaxConfig(ctx *gin.Context) (*sonic.OpendaxConfig, error) {
 	config, ok := ctx.MustGet("OpendaxConfig").(*sonic.OpendaxConfig)
@@ -45,9 +35,9 @@ func GetAuth(ctx *gin.Context) (*jwt.Auth, error) {
 	return auth, nil
 }
 
-// GetGlobalVaultService helper return global vault service from gin context
-func GetGlobalVaultService(ctx *gin.Context) (*vault.Service, error) {
-	vaultService, ok := ctx.MustGet("GlobalVaultService").(*vault.Service)
+// GetVaultService helper return global vault service from gin context
+func GetVaultService(ctx *gin.Context) (*vault.Service, error) {
+	vaultService, ok := ctx.MustGet("VaultService").(*vault.Service)
 	if !ok {
 		return nil, fmt.Errorf("Global vault service is not found")
 	}

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/openware/kaigara/pkg/vault"
 )
 
 const (
@@ -31,22 +30,23 @@ type CreatePlatformResponse struct {
 
 // SetSecret handles PUT '/api/v2/admin/secret'
 func SetSecret(ctx *gin.Context) {
-	vaultConfig, err := GetVaultConfig(ctx)
+	// Get global vault service
+	vaultService, err := GetVaultService(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+
 	key := ctx.PostForm("key")
 	value := ctx.PostForm("value")
 	scope := ctx.PostForm("scope")
+	appName := ctx.Param("component")
 
 	if key == "" || value == "" || scope == "" {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": "param missing (key, value or scope)"})
 		return
 	}
 
-	appName := ctx.Param("component")
-	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, DeploymentID)
 	vaultService.LoadSecrets(appName, scope)
 	err = vaultService.SetSecret(appName, key, value, scope)
 	if err != nil {
@@ -71,7 +71,7 @@ func SetSecret(ctx *gin.Context) {
 // GetSecrets handles GET '/api/v2/admin/secrets'
 func GetSecrets(ctx *gin.Context) {
 	// Get global vault service
-	vaultService, err := GetGlobalVaultService(ctx)
+	vaultService, err := GetVaultService(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -134,7 +134,7 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 
 	// Get global vault service
-	vaultService, err := GetGlobalVaultService(ctx)
+	vaultService, err := GetVaultService(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

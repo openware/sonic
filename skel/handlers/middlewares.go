@@ -10,14 +10,6 @@ import (
 	"github.com/openware/sonic"
 )
 
-// VaultConfigMiddleware middleware to set Vault config to gin context
-func VaultConfigMiddleware(conf *sonic.VaultConfig) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Set("VaultConfig", conf)
-		c.Next()
-	}
-}
-
 // OpendaxConfigMiddleware middleware to set kaigara config to gin context
 func OpendaxConfigMiddleware(config *sonic.OpendaxConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -26,10 +18,10 @@ func OpendaxConfigMiddleware(config *sonic.OpendaxConfig) gin.HandlerFunc {
 	}
 }
 
-// GlobalVaultServiceMiddleware middleware to set global vault service to gin context
-func GlobalVaultServiceMiddleware(vaultService *vault.Service) gin.HandlerFunc {
+// VaultServiceMiddleware middleware to set global vault service to gin context
+func VaultServiceMiddleware(vaultService *vault.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("GlobalVaultService", vaultService)
+		c.Set("VaultService", vaultService)
 		c.Next()
 	}
 }

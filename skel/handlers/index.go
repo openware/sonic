@@ -66,9 +66,8 @@ func Setup(app *sonic.Runtime) {
 	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, DeploymentID)
 
 	adminAPI := router.Group("/api/v2/admin")
-	adminAPI.Use(VaultConfigMiddleware(&vaultConfig))
+	adminAPI.Use(VaultServiceMiddleware(vaultService))
 	adminAPI.Use(OpendaxConfigMiddleware(&opendaxConfig))
-	adminAPI.Use(GlobalVaultServiceMiddleware(vaultService))
 	adminAPI.Use(AuthMiddleware())
 	adminAPI.Use(AdminRoleMiddleware())
 
@@ -77,7 +76,7 @@ func Setup(app *sonic.Runtime) {
 	adminAPI.POST("/platforms/new", CreatePlatform)
 
 	publicAPI := router.Group("/api/v2/public")
-	publicAPI.Use(VaultConfigMiddleware(&vaultConfig))
+	publicAPI.Use(VaultServiceMiddleware(vaultService))
 
 	publicAPI.GET("/config", GetPublicConfigs)
 

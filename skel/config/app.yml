@@ -21,10 +21,13 @@ mngapi:
   barong_url: http://barong:8080/api/v2/management
   jwt_issuer: opendax
   jwt_algo: RS256
-  jwt_private_key: 
+  jwt_private_key:
 
 vault:
   addr: http://localhost:8200
   token: changeme
 
 deploymentID: opendax_uat
+
+opendax:
+  addr: http://opendax:6969

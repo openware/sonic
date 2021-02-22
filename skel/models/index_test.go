@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/openware/sonic"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -12,6 +13,8 @@ func InitTestDB() {
 		panic(err)
 	}
 
-	Setup(db)
+	Setup(&sonic.Runtime{
+		DB: db,
+	})
 	Migrate()
 }

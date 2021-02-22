@@ -12,6 +12,7 @@ import (
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
 	"github.com/openware/kaigara/pkg/vault"
+	"github.com/openware/pkg/utils"
 	"github.com/openware/sonic"
 )
 
@@ -23,6 +24,9 @@ var (
 		Data:  make(map[string]map[string]interface{}),
 		Mutex: sync.RWMutex{},
 	}
+	SonicPublicKey  string
+	PeatioPublicKey string
+	BarongPublicKey string
 )
 
 // Initialize scope which goroutine will fetch every 30 seconds
@@ -30,15 +34,22 @@ const scope = "public"
 
 // Setup set up routes to render view HTML
 func Setup(app *sonic.Runtime) {
-
-	router := app.Srv
-	// Set up view engine
-	router.HTMLRender = ginview.Default()
+	// Get config and env
 	Version = app.Version
-	vaultConfig := app.Conf.Vault
 	DeploymentID = app.Conf.DeploymentID
+	SonicPublicKey = utils.GetEnv("SONIC_PUBLIC_KEY", "")
+	PeatioPublicKey = utils.GetEnv("PEATIO_PUBLIC_KEY", "")
+	BarongPublicKey = utils.GetEnv("BARONG_PUBLIC_KEY", "")
+	vaultConfig := app.Conf.Vault
+	opendaxConfig := app.Conf.Opendax
 
 	log.Println("DeploymentID in config:", app.Conf.DeploymentID)
+
+	// Get app router
+	router := app.Srv
+
+	// Set up view engine
+	router.HTMLRender = ginview.Default()
 
 	// Serve static files
 	router.Static("/public", "./public")
@@ -49,21 +60,22 @@ func Setup(app *sonic.Runtime) {
 
 	SetPageRoutes(router)
 
-	vaultMiddleware := VaultConfigMiddleware(&vaultConfig)
-
-	vaultAPI := router.Group("/api/v2/admin")
-	vaultAPI.Use(vaultMiddleware)
-	vaultAPI.GET("/secrets", GetSecrets)
-
-	vaultAPI.PUT(":component/secret", SetSecret)
-
-	vaultPublicAPI := router.Group("/api/v2/public")
-	vaultPublicAPI.Use(vaultMiddleware)
-
-	vaultPublicAPI.GET("/config", GetPublicConfigs)
-
 	// Initialize Vault Service
-	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, "global", DeploymentID)
+	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, DeploymentID)
+
+	adminAPI := router.Group("/api/v2/admin")
+	adminAPI.Use(VaultServiceMiddleware(vaultService))
+	adminAPI.Use(OpendaxConfigMiddleware(&opendaxConfig))
+	adminAPI.Use(AuthMiddleware())
+	adminAPI.Use(RBACMiddleware([]string{"superadmin"}))
+	adminAPI.GET("/secrets", GetSecrets)
+	adminAPI.PUT(":component/secret", SetSecret)
+	adminAPI.POST("/platforms/new", CreatePlatform)
+
+	publicAPI := router.Group("/api/v2/public")
+	publicAPI.Use(VaultServiceMiddleware(vaultService))
+
+	publicAPI.GET("/config", GetPublicConfigs)
 
 	// Define all public env on first system start
 	WriteCache(vaultService, scope, true)

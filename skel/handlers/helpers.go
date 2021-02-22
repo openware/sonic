@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/openware/kaigara/pkg/vault"
+	"github.com/openware/pkg/jwt"
 	"github.com/openware/sonic"
 )
 
@@ -14,14 +15,34 @@ type cache struct {
 	Data  map[string]map[string]interface{}
 }
 
-// GetVaultConfig helper returns Vault config from gin context
-func GetVaultConfig(ctx *gin.Context) (*sonic.VaultConfig, error) {
-	config, ok := ctx.MustGet("VaultConfig").(*sonic.VaultConfig)
+// GetOpendaxConfig helper return kaigara config from gin context
+func GetOpendaxConfig(ctx *gin.Context) (*sonic.OpendaxConfig, error) {
+	config, ok := ctx.MustGet("OpendaxConfig").(*sonic.OpendaxConfig)
 	if !ok {
-		return nil, fmt.Errorf("Vault config is not found")
+		return nil, fmt.Errorf("Opendax config is not found")
 	}
 
 	return config, nil
+}
+
+// GetAuth helper return auth from gin context
+func GetAuth(ctx *gin.Context) (*jwt.Auth, error) {
+	auth, ok := ctx.MustGet("auth").(*jwt.Auth)
+	if !ok {
+		return nil, fmt.Errorf("Auth is not found")
+	}
+
+	return auth, nil
+}
+
+// GetVaultService helper return global vault service from gin context
+func GetVaultService(ctx *gin.Context) (*vault.Service, error) {
+	vaultService, ok := ctx.MustGet("VaultService").(*vault.Service)
+	if !ok {
+		return nil, fmt.Errorf("Global vault service is not found")
+	}
+
+	return vaultService, nil
 }
 
 // WriteCache read latest vault version and fetch keys values from vault
@@ -34,8 +55,7 @@ func WriteCache(vaultService *vault.Service, scope string, firstRun bool) {
 	}
 
 	for _, app := range appNames {
-		vaultService.SetAppName(app)
-		err = vaultService.LoadSecrets(scope)
+		err = vaultService.LoadSecrets(app, scope)
 		if err != nil {
 			panic(err)
 		}
@@ -48,24 +68,24 @@ func WriteCache(vaultService *vault.Service, scope string, firstRun bool) {
 			memoryCache.Data[app][scope] = make(map[string]interface{})
 		}
 
-		current, err := vaultService.GetCurrentVersion(scope)
+		current, err := vaultService.GetCurrentVersion(app, scope)
 		if err != nil {
 			panic(err)
 		}
 
-		latest, err := vaultService.GetLatestVersion(scope)
+		latest, err := vaultService.GetLatestVersion(app, scope)
 		if err != nil {
 			panic(err)
 		}
 
 		if current != latest || firstRun {
-			keys, err := vaultService.ListSecrets(scope)
+			keys, err := vaultService.ListSecrets(app, scope)
 			if err != nil {
 				panic(err)
 			}
 
 			for _, key := range keys {
-				val, err := vaultService.GetSecret(key, scope)
+				val, err := vaultService.GetSecret(app, key, scope)
 				if err != nil {
 					panic(err)
 				}

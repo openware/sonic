@@ -65,8 +65,7 @@ func WriteCache(vaultService *vault.Service, scope string, firstRun bool) {
 	}
 
 	for _, app := range appNames {
-		vaultService.SetAppName(app)
-		err = vaultService.LoadSecrets(scope)
+		err = vaultService.LoadSecrets(app, scope)
 		if err != nil {
 			panic(err)
 		}
@@ -79,24 +78,24 @@ func WriteCache(vaultService *vault.Service, scope string, firstRun bool) {
 			memoryCache.Data[app][scope] = make(map[string]interface{})
 		}
 
-		current, err := vaultService.GetCurrentVersion(scope)
+		current, err := vaultService.GetCurrentVersion(app, scope)
 		if err != nil {
 			panic(err)
 		}
 
-		latest, err := vaultService.GetLatestVersion(scope)
+		latest, err := vaultService.GetLatestVersion(app, scope)
 		if err != nil {
 			panic(err)
 		}
 
 		if current != latest || firstRun {
-			keys, err := vaultService.ListSecrets(scope)
+			keys, err := vaultService.ListSecrets(app, scope)
 			if err != nil {
 				panic(err)
 			}
 
 			for _, key := range keys {
-				val, err := vaultService.GetSecret(key, scope)
+				val, err := vaultService.GetSecret(app, key, scope)
 				if err != nil {
 					panic(err)
 				}

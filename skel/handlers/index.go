@@ -63,7 +63,7 @@ func Setup(app *sonic.Runtime) {
 	SetPageRoutes(router)
 
 	// Initialize Vault Service
-	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, "global", DeploymentID)
+	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, DeploymentID)
 
 	adminAPI := router.Group("/api/v2/admin")
 	adminAPI.Use(VaultConfigMiddleware(&vaultConfig))

@@ -36,9 +36,6 @@ func SetSecret(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	appName := ctx.Param("component")
-	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, appName, DeploymentID)
-
 	key := ctx.PostForm("key")
 	value := ctx.PostForm("value")
 	scope := ctx.PostForm("scope")
@@ -48,20 +45,22 @@ func SetSecret(ctx *gin.Context) {
 		return
 	}
 
-	vaultService.LoadSecrets(scope)
-	err = vaultService.SetSecret(key, value, scope)
+	appName := ctx.Param("component")
+	vaultService := vault.NewService(vaultConfig.Addr, vaultConfig.Token, DeploymentID)
+	vaultService.LoadSecrets(appName, scope)
+	err = vaultService.SetSecret(appName, key, value, scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = vaultService.SaveSecrets(scope)
+	err = vaultService.SaveSecrets(appName, scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	result, err := vaultService.GetSecret(key, scope)
+	result, err := vaultService.GetSecret(appName, key, scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -89,12 +88,10 @@ func GetSecrets(ctx *gin.Context) {
 	result := make(map[string]map[string]interface{})
 
 	for _, app := range appNames {
-		vaultService.SetAppName(app)
-
 		result[app] = make(map[string]interface{})
 
 		for _, scope := range scopes {
-			if err := vaultService.LoadSecrets(scope); err != nil {
+			if err := vaultService.LoadSecrets(app, scope); err != nil {
 				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
@@ -102,7 +99,7 @@ func GetSecrets(ctx *gin.Context) {
 			result[app][scope] = make(map[string]interface{})
 
 			if scope == "secret" {
-				secretsKeys, err := vaultService.ListSecrets(scope)
+				secretsKeys, err := vaultService.ListSecrets(app, scope)
 				if err != nil {
 					ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 					return
@@ -112,7 +109,7 @@ func GetSecrets(ctx *gin.Context) {
 					result[app][scope].(map[string]interface{})[key] = "******"
 				}
 			} else {
-				secrets, err := vaultService.GetSecrets(scope)
+				secrets, err := vaultService.GetSecrets(app, scope)
 				if err != nil {
 					ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 					return
@@ -137,8 +134,6 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 
 	// Get global vault service
-	scope := "private"
-	key := "platform_id"
 	vaultService, err := GetGlobalVaultService(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -231,18 +226,21 @@ func CreatePlatform(ctx *gin.Context) {
 		return
 	}
 
+	app := "peatio"
+	scope := "private"
+	key := "platform_id"
 	// Load secret
-	vaultService.LoadSecrets(scope)
+	vaultService.LoadSecrets(app, scope)
 
 	// Set Platform ID to secret
-	err = vaultService.SetSecret(key, platform.PID, scope)
+	err = vaultService.SetSecret(app, key, platform.PID, scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Save secret to vault
-	err = vaultService.SaveSecrets(scope)
+	err = vaultService.SaveSecrets(app, scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

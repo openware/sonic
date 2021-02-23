@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,7 @@ import (
 
 type cache struct {
 	Mutex sync.RWMutex
-	Data  map[string]map[string]interface{}
+	Data  map[string]interface{}
 }
 
 // GetOpendaxConfig helper return kaigara config from gin context
@@ -49,48 +50,38 @@ func GetVaultService(ctx *gin.Context) (*vault.Service, error) {
 // 'firstRun' variable will help to run writing to cache on first system start
 // as on the start latest and current versions are the same
 func WriteCache(vaultService *vault.Service, scope string, firstRun bool) {
-	appNames, err := vaultService.ListAppNames()
+	err := vaultService.LoadSecrets("global", scope)
 	if err != nil {
 		panic(err)
 	}
 
-	for _, app := range appNames {
-		err = vaultService.LoadSecrets(app, scope)
+	if memoryCache.Data == nil {
+		memoryCache.Data = make(map[string]interface{})
+	}
+
+	current, err := vaultService.GetCurrentVersion("global", scope)
+	if err != nil {
+		panic(err)
+	}
+
+	latest, err := vaultService.GetLatestVersion("global", scope)
+	if err != nil {
+		panic(err)
+	}
+
+	if current != latest || firstRun {
+		log.Println("Writing to cache")
+		keys, err := vaultService.ListSecrets("global", scope)
 		if err != nil {
 			panic(err)
 		}
 
-		if memoryCache.Data[app] == nil {
-			memoryCache.Data[app] = make(map[string]interface{})
-		}
-
-		if memoryCache.Data[app][scope] == nil {
-			memoryCache.Data[app][scope] = make(map[string]interface{})
-		}
-
-		current, err := vaultService.GetCurrentVersion(app, scope)
-		if err != nil {
-			panic(err)
-		}
-
-		latest, err := vaultService.GetLatestVersion(app, scope)
-		if err != nil {
-			panic(err)
-		}
-
-		if current != latest || firstRun {
-			keys, err := vaultService.ListSecrets(app, scope)
+		for _, key := range keys {
+			val, err := vaultService.GetSecret("global", key, scope)
 			if err != nil {
 				panic(err)
 			}
-
-			for _, key := range keys {
-				val, err := vaultService.GetSecret(app, key, scope)
-				if err != nil {
-					panic(err)
-				}
-				memoryCache.Data[app][scope].(map[string]interface{})[key] = val
-			}
+			memoryCache.Data[key] = val
 		}
 	}
 }

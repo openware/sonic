@@ -19,8 +19,8 @@ const (
 
 // CreatePlatformParams from request parameter
 type CreatePlatformParams struct {
-	PlatformName string `json:"platform_name" binding:"requied"`
-	PlatformURL  string `json:"platform_url" binding:"requied"`
+	PlatformName string `json:"platform_name" binding:"required"`
+	PlatformURL  string `json:"platform_url" binding:"required"`
 }
 
 // CreatePlatformResponse store response from new platform

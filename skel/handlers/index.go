@@ -21,7 +21,7 @@ var (
 	Version      string
 	DeploymentID string
 	memoryCache  = cache{
-		Data:  make(map[string]map[string]interface{}),
+		Data:  make(map[string]interface{}),
 		Mutex: sync.RWMutex{},
 	}
 	SonicPublicKey  string
@@ -85,7 +85,7 @@ func Setup(app *sonic.Runtime) {
 // StartConfigCaching will fetch latest data from vault every 30 seconds
 func StartConfigCaching(vaultService *vault.Service, scope string) {
 	for {
-		<-time.After(30 * time.Second)
+		<-time.After(20 * time.Second)
 
 		memoryCache.Mutex.Lock()
 		WriteCache(vaultService, scope, false)

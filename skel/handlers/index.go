@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"regexp"
 
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
@@ -129,6 +130,14 @@ func version(ctx *gin.Context) {
 }
 
 func notFound(ctx *gin.Context) {
+	validURL = regexp.MustCompile(`/(\/|\.html|\/[a-zA-Z0-9]+)$/`)
+	if validURL.MatchString(ctx.Request.RequestURI()) {
+		ctx.Logger().Printf("Path %s not found, defaulting to index.html", ctx.Path())
+		ctx.Request.SetRequestURI("/index.html")
+		return
+	}
+	ctx.Response.SetStatusCode(http.StatusNotFound)
+
 	ctx.Redirect(http.StatusMovedPermanently, "/public/index.html")
 }
 

@@ -2,7 +2,10 @@
 
 This application was generated with [sonic](https://github.com/openware/sonic)
 
+# How to run sonic with client
 ## Prerequisites
+1. Exec inside the db container and create `opendax_development` database
+2. Enable transit for Vault with `vault secrets enable transit`
 
 To bring up all the dependencies, run `docker-compose up -Vd`
 

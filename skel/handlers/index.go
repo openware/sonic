@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
-	"regexp"
 
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
@@ -130,15 +130,14 @@ func version(ctx *gin.Context) {
 }
 
 func notFound(ctx *gin.Context) {
-	validURL = regexp.MustCompile(`/(\/|\.html|\/[a-zA-Z0-9]+)$/`)
-	if validURL.MatchString(ctx.Request.RequestURI()) {
-		ctx.Logger().Printf("Path %s not found, defaulting to index.html", ctx.Path())
-		ctx.Request.SetRequestURI("/index.html")
+	// Any file path other than .html will be invalid.
+	invalidPath := regexp.MustCompile(`^\/?((?:\w+\/)*(\w*\.[^\.html]+))`)
+	if invalidPath.MatchString(ctx.Request.RequestURI) {
+		ctx.Status(http.StatusNotFound)
 		return
 	}
-	ctx.Response.SetStatusCode(http.StatusNotFound)
-
-	ctx.Redirect(http.StatusMovedPermanently, "/public/index.html")
+	log.Printf("Path %s not found, defaulting to index.html\n", ctx.Request.URL.Path)
+	index(ctx)
 }
 
 func FilesPaths(pattern string) ([]string, error) {

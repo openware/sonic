@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -57,6 +58,8 @@ func Setup(app *sonic.Runtime) {
 	router.GET("/", index)
 	router.GET("/page", emptyPage)
 	router.GET("/version", version)
+
+	router.NoRoute(notFound)
 
 	SetPageRoutes(router)
 
@@ -124,6 +127,17 @@ func emptyPage(ctx *gin.Context) {
 // Return application version
 func version(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"Version": Version})
+}
+
+func notFound(ctx *gin.Context) {
+	// Any file path other than .html will be invalid.
+	invalidPath := regexp.MustCompile(`^\/?((?:\w+\/)*(\w*\.[^\.html]+))`)
+	if invalidPath.MatchString(ctx.Request.RequestURI) {
+		ctx.Status(http.StatusNotFound)
+		return
+	}
+	log.Printf("Path %s not found, defaulting to index.html\n", ctx.Request.URL.Path)
+	index(ctx)
 }
 
 func FilesPaths(pattern string) ([]string, error) {

@@ -28,6 +28,12 @@ type CreatePlatformResponse struct {
 	PID string `json:"pid"`
 }
 
+type setSecretParams struct {
+	Key   string
+	Value interface{}
+	Scope string
+}
+
 // SetSecret handles PUT '/api/v2/admin/secret'
 func SetSecret(ctx *gin.Context) {
 	// Get global vault service
@@ -37,9 +43,11 @@ func SetSecret(ctx *gin.Context) {
 		return
 	}
 
-	key := ctx.PostForm("key")
-	value := ctx.PostForm("value")
-	scope := ctx.PostForm("scope")
+	var params setSecretParams
+
+	// FIXME: Check if ctx.Body is the right place
+	params := json.Unmarshal(ctx.Body, &params)
+
 	appName := ctx.Param("component")
 
 	if key == "" || value == "" || scope == "" {
@@ -48,19 +56,19 @@ func SetSecret(ctx *gin.Context) {
 	}
 
 	vaultService.LoadSecrets(appName, scope)
-	err = vaultService.SetSecret(appName, key, value, scope)
+	err = vaultService.SetSecret(appName, params.Key, params.Value, params.Scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = vaultService.SaveSecrets(appName, scope)
+	err = vaultService.SaveSecrets(appName, params.Scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	result, err := vaultService.GetSecret(appName, key, scope)
+	result, err := vaultService.GetSecret(appName, params.Key, params.Scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -29,9 +29,9 @@ type CreatePlatformResponse struct {
 }
 
 type setSecretParams struct {
-	Key   string
-	Value interface{}
-	Scope string
+	Key   string      `json:"key" binding:"required"`
+	Value interface{} `json:"value" binding:"required"`
+	Scope string      `json:"scope" binding:"required"`
 }
 
 // SetSecret handles PUT '/api/v2/admin/secret'
@@ -44,18 +44,18 @@ func SetSecret(ctx *gin.Context) {
 	}
 
 	var params setSecretParams
-
-	// FIXME: Check if ctx.Body is the right place
-	params := json.Unmarshal(ctx.Body, &params)
-
-	appName := ctx.Param("component")
-
-	if key == "" || value == "" || scope == "" {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": "param missing (key, value or scope)"})
+	if err := ctx.ShouldBindJSON(&params); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	vaultService.LoadSecrets(appName, scope)
+	appName := ctx.Param("component")
+
+	if err := vaultService.LoadSecrets(appName, params.Scope); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	err = vaultService.SetSecret(appName, params.Key, params.Value, params.Scope)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

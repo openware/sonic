@@ -24,6 +24,7 @@ require (
 	github.com/openware/pkg/ika v0.0.0-20210204083929-709d949cb0ff
 	github.com/openware/pkg/jwt v0.0.0-20210204083929-709d949cb0ff
 	github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d
+	github.com/openware/pkg/mngapi v0.0.0-20210310102521-74147a83d887
 	github.com/openware/pkg/utils v0.0.0-20210204083929-709d949cb0ff
 	github.com/openware/sonic v0.0.0-20210219120221-2c220ea19081
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect

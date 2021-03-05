@@ -99,7 +99,7 @@ func createNewLicense(appName string, app *sonic.Runtime, vaultService *vault.Se
 	if err != nil {
 		return err
 	}
-	url.Path = path.Join(url.Path, "/api/v2/opx/licenses/new")
+	url.Path = path.Join(url.Path, "/api/v2/opx/sonic/licenses/new")
 
 	privRaw, err := getPrivateKeyFromVault(vaultService)
 	if err != nil {

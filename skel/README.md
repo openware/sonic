@@ -19,6 +19,31 @@ export VAULT_TOKEN=*changeme*
 vault policy write *deployment_id*_sonic config/sonic.hcl
 vault token create -policy *deployment_id*_sonic -period=768h
 ```
+
+##### Peatio Management Scopes
+```
+  read_engines:
+    mandatory_signers:
+      - sonic
+    permitted_signers:
+      - sonic
+  write_engines:
+    mandatory_signers:
+      - sonic
+    permitted_signers:
+      - sonic
+  read_markets:
+    mandatory_signers:
+      - sonic
+    permitted_signers:
+      - sonic
+  write_markets:
+    mandatory_signers:
+      - sonic
+    permitted_signers:
+      - sonic
+```
+
 3. Use the resulting Vault token when running the application
 
 ## How to run Sonic with a frontend

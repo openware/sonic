@@ -76,7 +76,7 @@ svm_install() {
     echo "=> Appending svm source string to ${SVM_PROFILE}"
     command printf "${SOURCE_STR}" >>"${SVM_PROFILE}"
   else
-    echo "=> svm is already append in ${SVM_PROFILE}"
+    echo "=> svm is already appended in ${SVM_PROFILE}"
   fi
 }
 

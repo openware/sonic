@@ -43,25 +43,28 @@ create() {
   GITPATH="${1}"
   local DIR
   local ADDR
+  local SVM_INSTALL_DIR
 
   IFS='/'
   read -A ADDR <<<"$GITPATH"
   DIR=${ADDR[${#ADDR[@]}]}
+  SVM_INSTALL_DIR="$(svm_install_dir)"
 
   if [ -d ${DIR} ]; then
-    echo "${DIR} already exists"
+    echo "${DIR} already exists, updating"
+
+    cp -r ${SVM_INSTALL_DIR}/skel/* ${DIR}
+    sed -i "s|github.com/openware/sonic/skel|${GITPATH}|g" ${DIR}/**/*.go ${DIR}/go.mod
   else
     echo "=> Creating ${DIR}"
-    local SVM_INSTALL_DIR
-    SVM_INSTALL_DIR="$(svm_install_dir)"
 
     cp -r ${SVM_INSTALL_DIR}/skel ${DIR}
-    sed -i "" "s|github.com/openware/sonic/skel|${GITPATH}|g" ${DIR}/**/*.go ${DIR}/go.mod
+    sed -i "s|github.com/openware/sonic/skel|${GITPATH}|g" ${DIR}/**/*.go ${DIR}/go.mod
 
     git init -q ${DIR}
     cd ${DIR}
     git add .
-    git commit -q -m "Initiali commit"
+    git commit -q -m "Initial commit"
     git remote add orgin ${GITPATH}
     cd ..
   fi

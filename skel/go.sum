@@ -175,10 +175,9 @@ github.com/openware/pkg/jwt v0.0.0-20210204083929-709d949cb0ff h1:P9vW0TgN9g7Wu2
 github.com/openware/pkg/jwt v0.0.0-20210204083929-709d949cb0ff/go.mod h1:LB6Vl3pne5B756MTNooMiUmzvrgXji5n+ZsWYTkqjJw=
 github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d h1:4qKQDWBN67YlA228Q8nrtOWCdzk6eYiOzUsPFeBgxFE=
 github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d/go.mod h1:GOlHexRI3ZB6oePaiqObLDwZ6/FmrmTb6hho62wehOE=
-github.com/openware/pkg/mngapi v0.0.0-20210204083929-709d949cb0ff h1:hEht6qOfZx/f0X1NKMpJH0cKma6vm70huT2EL/Y0igI=
 github.com/openware/pkg/mngapi v0.0.0-20210204083929-709d949cb0ff/go.mod h1:41rKG0I4Nnd9xPTHflQmz2NEGqORuFMZEbRhkY1SaxE=
-github.com/openware/pkg/mngapi v0.0.0-20210310102521-74147a83d887 h1:GcDSoWC3dkiQOn5FA4poWKzZwa1Vpgdo2C1UYannIHc=
-github.com/openware/pkg/mngapi v0.0.0-20210310102521-74147a83d887/go.mod h1:41rKG0I4Nnd9xPTHflQmz2NEGqORuFMZEbRhkY1SaxE=
+github.com/openware/pkg/mngapi v0.0.0-20210312074626-3d99e6d03afb h1:iOTED06Z0bFcSzJTAU6FyRhz0l2IYLLlSyRQSo/OoME=
+github.com/openware/pkg/mngapi v0.0.0-20210312074626-3d99e6d03afb/go.mod h1:41rKG0I4Nnd9xPTHflQmz2NEGqORuFMZEbRhkY1SaxE=
 github.com/openware/pkg/utils v0.0.0-20210204083929-709d949cb0ff h1:xPVv4LSNSSDla4U7vP6s2Idn5rBIhZuL9flYbiF4vig=
 github.com/openware/pkg/utils v0.0.0-20210204083929-709d949cb0ff/go.mod h1:xnqmuSO0HWDHKC4i+vNL6WkcSBSl02Jx8PHuq78o7a8=
 github.com/openware/sonic v0.0.0-20210219120221-2c220ea19081 h1:0bJyoqqdON2ED7umsz+cBJENxMgkg6dQRnalI1CXJ64=

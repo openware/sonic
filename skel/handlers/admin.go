@@ -14,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/openware/pkg/jwt"
 	"github.com/openware/pkg/mngapi/peatio"
-	"github.com/openware/sonic"
 	"github.com/openware/sonic/skel/daemons"
 )
 
@@ -138,15 +137,7 @@ func GetSecrets(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
-func registerPlatform(opendaxConfig *sonic.OpendaxConfig, auth *jwt.Auth, params *CreatePlatformParams) (*CreatePlatformResponse, []byte, error) {
-	// Get Opendax API endpoint from config
-	odaxUrl, err := url.Parse(opendaxConfig.Addr)
-
-	if err != nil {
-		return nil, nil, err
-	}
-	odaxUrl.Path = path.Join(odaxUrl.Path, "/api/v2/opx/platforms/new")
-
+func registerPlatform(auth *jwt.Auth, params *CreatePlatformParams, odaxUrl *url.URL) (*CreatePlatformResponse, []byte, error) {
 	// Request payload
 	payload := map[string]interface{}{
 		"email":             auth.Email,
@@ -189,7 +180,7 @@ func registerPlatform(opendaxConfig *sonic.OpendaxConfig, auth *jwt.Auth, params
 
 	// Check for API error
 	if res.StatusCode != http.StatusCreated {
-		return nil, nil, fmt.Errorf("Unexpected response from opendax.cloud: %s", resBody)
+		return nil, nil, fmt.Errorf("ERR: registerPlatform: Unexpected response from opendax.cloud: %s", resBody)
 	}
 
 	// Get platform from response
@@ -202,18 +193,12 @@ func registerPlatform(opendaxConfig *sonic.OpendaxConfig, auth *jwt.Auth, params
 	return platform, resBody, nil
 }
 
-func createOpendaxEngine(sc *SonicContext, auth *jwt.Auth, params *CreatePlatformParams, platform *CreatePlatformResponse) (string, error) {
+func createOpendaxEngine(sc *SonicContext, auth *jwt.Auth, params *CreatePlatformParams, platform *CreatePlatformResponse, odaxUrl *url.URL) (string, error) {
 	// Get engines by name
 	engines, apiError := sc.PeatioClient.GetEngines(peatio.GetEngineParams{Name: "opendax-cloud-engine"})
 	if apiError != nil {
 		log.Printf("ERROR: Failed to get engine by name. Error: %v. Errors: %v", apiError.Error, apiError.Errors)
 		return "", fmt.Errorf(apiError.Error)
-	}
-
-	// Parse platform URL
-	platformURL, err := url.Parse(params.PlatformURL)
-	if err != nil {
-		return "", err
 	}
 
 	var engineID string
@@ -256,7 +241,7 @@ func createOpendaxEngine(sc *SonicContext, auth *jwt.Auth, params *CreatePlatfor
 
 		engineID = fmt.Sprint(engine.ID)
 	}
-	return engineID, err
+	return engineID, nil
 }
 
 func createMarkets(sc *SonicContext, engineID string) error {
@@ -316,6 +301,15 @@ func CreatePlatform(ctx *gin.Context) {
 		return
 	}
 
+	// Get Opendax API endpoint from config
+	odaxUrl, err := url.Parse(opendaxConfig.Addr)
+	if err != nil {
+		log.Printf("ERR: CreatePlatform: OpenDAX URL parsing failed: %s", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	odaxUrl.Path = path.Join(odaxUrl.Path, "/api/v2/opx/platforms/new")
+
 	// Get request parameters
 	params := &CreatePlatformParams{}
 
@@ -326,7 +320,7 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 
 	// Register the platform
-	platform, resBody, err := registerPlatform(opendaxConfig, auth, params)
+	platform, resBody, err := registerPlatform(auth, params, odaxUrl)
 	if err != nil {
 		log.Printf("ERROR: %s", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -372,7 +366,7 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 
 	// Manage engines
-	engineID, err := createOpendaxEngine(sc, auth, params, platform)
+	engineID, err := createOpendaxEngine(sc, auth, params, platform, odaxUrl)
 	if err != nil {
 		log.Printf("ERROR: Failed to create opendax engine: %s", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

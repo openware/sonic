@@ -277,12 +277,6 @@ func CreatePlatform(ctx *gin.Context) {
 		return
 	}
 
-	// Parse platform URL
-	platformURL, err := url.Parse(params.PlatformURL)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
-	}
-
 	var engineID string
 	if len(engines) > 0 {
 		// Update engine
@@ -292,7 +286,7 @@ func CreatePlatform(ctx *gin.Context) {
 			Name:   "opendax-cloud-engine",
 			Driver: "opendax",
 			UID:    auth.UID,
-			URL:    fmt.Sprintf("wss://%v/api/v2/open_finance", platformURL.Host),
+			URL:    fmt.Sprintf("wss://%v/api/v2/open_finance", url.Host),
 			State:  1, // state online
 			Key:    platform.KID,
 			Secret: platform.Secret,

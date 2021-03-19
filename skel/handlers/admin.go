@@ -175,13 +175,13 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 
 	// Get Opendax API endpoint from config
-	url, err := url.Parse(opendaxConfig.Addr)
+	odaxUrl, err := url.Parse(opendaxConfig.Addr)
 
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	url.Path = path.Join(url.Path, "/api/v2/opx/platforms/new")
+	odaxUrl.Path = path.Join(odaxUrl.Path, "/api/v2/opx/platforms/new")
 
 	// Request payload
 	payload := map[string]interface{}{
@@ -201,7 +201,7 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 
 	// Create new HTTP request
-	req, err := http.NewRequest(http.MethodPost, url.String(), bytes.NewBuffer(jsonPayload))
+	req, err := http.NewRequest(http.MethodPost, odaxUrl.String(), bytes.NewBuffer(jsonPayload))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -286,7 +286,7 @@ func CreatePlatform(ctx *gin.Context) {
 			Name:   "opendax-cloud-engine",
 			Driver: "opendax",
 			UID:    auth.UID,
-			URL:    fmt.Sprintf("wss://%v/api/v2/open_finance", url.Host),
+			URL:    fmt.Sprintf("wss://%v/api/v2/open_finance", odaxUrl.Host),
 			State:  1, // state online
 			Key:    platform.KID,
 			Secret: platform.Secret,
@@ -304,7 +304,7 @@ func CreatePlatform(ctx *gin.Context) {
 			Name:   "opendax-cloud-engine",
 			Driver: "opendax",
 			UID:    auth.UID,
-			URL:    fmt.Sprintf("wss://%v/api/v2/open_finance", platformURL.Host),
+			URL:    fmt.Sprintf("wss://%v/api/v2/open_finance", odaxUrl.Host),
 			State:  1, // state online
 			Key:    platform.KID,
 			Secret: platform.Secret,

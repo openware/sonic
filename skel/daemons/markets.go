@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/openware/pkg/mngapi/peatio"
-	"github.com/openware/sonic"
 )
 
 // Define response data
@@ -28,18 +27,18 @@ type MarketResponse struct {
 	Position        int64  `json:"position"`
 }
 
-func FetchMarkets(peatioClient *peatio.Client, config sonic.OpendaxConfig) {
+func FetchMarkets(peatioClient *peatio.Client, opendaxAddr string) {
 	for {
-		FetchMarketsFromOpenfinexCloud(peatioClient, config)
-		<-time.After(1 * time.Hour)
+		FetchMarketsFromOpenfinexCloud(peatioClient, opendaxAddr)
+		<-time.After(5 * time.Minute)
 	}
 }
 
-func FetchMarketsFromOpenfinexCloud(peatioClient *peatio.Client, config sonic.OpendaxConfig) error {
-	url := fmt.Sprintf("%s/api/v2/opx/markets", config.Addr)
+func FetchMarketsFromOpenfinexCloud(peatioClient *peatio.Client, opendaxAddr string) error {
+	url := fmt.Sprintf("%s/api/v2/opx/markets", opendaxAddr)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		log.Printf("Can't fetch markets: %v", err.Error())
+		log.Printf("ERROR: FetchMarketsFromOpenfinexCloud: Can't fetch markets: %v", err.Error())
 		return err
 	}
 	// Call HTTP request
@@ -47,7 +46,7 @@ func FetchMarketsFromOpenfinexCloud(peatioClient *peatio.Client, config sonic.Op
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("Request failed: %v", err.Error())
+		log.Printf("ERROR: FetchMarketsFromOpenfinexCloud: Request failed: %v", err.Error())
 		return err
 	}
 	defer resp.Body.Close()
@@ -55,20 +54,20 @@ func FetchMarketsFromOpenfinexCloud(peatioClient *peatio.Client, config sonic.Op
 	// Convert response body to []byte
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Can't convert body to []: %d -> %v", resp.StatusCode, err.Error())
+		log.Printf("ERROR: FetchMarketsFromOpenfinexCloud: Can't convert body to []: %d -> %v", resp.StatusCode, err.Error())
 		return err
 	}
 	// Check for API error
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("Unexpected status: %d", resp.StatusCode)
-		return errors.New(fmt.Sprintf("Unexpected status: %d", resp.StatusCode))
+		log.Printf("ERROR: FetchMarketsFromOpenfinexCloud: Unexpected status: %d", resp.StatusCode)
+		return errors.New(fmt.Sprintf("ERROR: FetchMarketsFromOpenfinexCloud: Unexpected status: %d", resp.StatusCode))
 	}
 
 	// Unmarshal response body result
 	markets := []MarketResponse{}
 	marshalErr := json.Unmarshal(resBody, &markets)
 	if marshalErr != nil {
-		log.Printf("Can't unmarshal response. %v", marshalErr)
+		log.Printf("ERROR: FetchMarketsFromOpenfinexCloud: Can't unmarshal response. %v", marshalErr)
 		return marshalErr
 	}
 
@@ -82,7 +81,7 @@ func FetchMarketsFromOpenfinexCloud(peatioClient *peatio.Client, config sonic.Op
 				BaseCurrency:    market.BaseUnit,
 				QuoteCurrency:   market.QuoteUnit,
 				State:           "disabled",
-				EngineName:      "opendax_cloud",
+				EngineName:      "opendax-cloud-engine",
 				AmountPrecision: market.AmountPrecision,
 				PricePrecision:  market.PricePrecision,
 				MinPrice:        market.MinPrice,
@@ -93,7 +92,7 @@ func FetchMarketsFromOpenfinexCloud(peatioClient *peatio.Client, config sonic.Op
 
 			_, apiError := peatioClient.CreateMarket(marketParams)
 			if apiError != nil {
-				log.Printf("Can't create market with id %s. Error: %v. Errors: %v", market.ID, apiError.Error, apiError.Errors)
+				log.Printf("ERROR: FetchMarketsFromOpenfinexCloud: Can't create market with id %s. Error: %v. Errors: %v", market.ID, apiError.Error, apiError.Errors)
 			}
 		}
 	}

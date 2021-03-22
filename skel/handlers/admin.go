@@ -384,12 +384,12 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 
 	// Retrieve a finex license
-	err = daemons.CreateNewLicense("finex", opendaxConfig, vaultService)
-	if err != nil {
-		log.Printf("ERROR: Failed to retrieve a finex license: %s", err.Error())
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	// err = daemons.CreateNewLicense("finex", opendaxConfig, vaultService)
+	// if err != nil {
+	// 	log.Printf("ERROR: Failed to retrieve a finex license: %s", err.Error())
+	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	// Get Sonic Context
 	sc, err := GetSonicCtx(ctx)

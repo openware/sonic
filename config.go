@@ -13,13 +13,13 @@ type Config struct {
 		Host string `yaml:"host" env:"REDIS_HOST" env-description:"Redis Server host" env-default:"localhost"`
 		Port string `yaml:"port" env:"REDIS_PORT" env-description:"Redis Server port" env-default:"6379"`
 	} `yaml:"redis"`
-	Port             string        `env:"APP_PORT" env-description:"Port for HTTP service" env-default:"6009"`
-	MngAPI           mngapi.Config `yaml:"mngapi"`
-	Vault            VaultConfig   `yaml:"vault"`
-	DeploymentID     string        `yaml:"deploymentID" env:"DEPLOYMENT_ID"`
-	Opendax          OpendaxConfig `yaml:"opendax"`
-	MarketsBlacklist string        `yaml:"markets_blacklist" env:"MARKETS_BLACKLIST"`
-	FinexURL         string        `yaml:"finex_url" env:"FINEX_URL"`
+	Port                string        `env:"APP_PORT" env-description:"Port for HTTP service" env-default:"6009"`
+	MngAPI              mngapi.Config `yaml:"mngapi"`
+	Vault               VaultConfig   `yaml:"vault"`
+	DeploymentID        string        `yaml:"deploymentID" env:"DEPLOYMENT_ID"`
+	Opendax             OpendaxConfig `yaml:"opendax"`
+	MarketsBlacklist    string        `yaml:"markets_blacklist" env:"MARKETS_BLACKLIST"`
+	CurrenciesBlacklist string        `yaml:"currencies_blacklist" env:"CURRENCIES_BLACKLIST"`
 }
 
 // VaultConfig contains Vault-related configuration

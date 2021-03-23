@@ -22,12 +22,11 @@ require (
 	github.com/openware/pkg/ika v0.0.0-20210224055737-ee0a497ae719
 	github.com/openware/pkg/jwt v0.0.0-20210204083929-709d949cb0ff
 	github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d
-	github.com/openware/pkg/mngapi v0.0.0-20210318084603-da84c075fe8d
+	github.com/openware/pkg/mngapi v0.0.0-20210324093355-1ac2290ada1a
 	github.com/openware/pkg/utils v0.0.0-20210204083929-709d949cb0ff
 	github.com/openware/rango v0.0.0-20210102195930-4a08497b5215
 	github.com/openware/sonic v0.0.0-20210219120221-2c220ea19081
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/ugorji/go v1.2.3 // indirect
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect

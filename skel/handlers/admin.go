@@ -14,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/openware/pkg/jwt"
 	"github.com/openware/pkg/mngapi/peatio"
-	"github.com/openware/rango/pkg/auth"
 	"github.com/openware/sonic/skel/daemons"
 )
 
@@ -269,39 +268,6 @@ func createMarkets(sc *SonicContext, engineID string) error {
 	return nil
 }
 
-func checkBalance(platform *CreatePlatformResponse, odaxUrl *url.URL) error {
-	// Create new HTTP request
-	peatioUrl := fmt.Sprintf("https://%v/api/v2/peatio/account/balances", odaxUrl.Host)
-	req, err := http.NewRequest(http.MethodGet, peatioUrl, nil)
-	if err != nil {
-		return err
-	}
-
-	nonce := time.Now().UnixNano() / int64(time.Millisecond)
-	req.Header = auth.NewAPIKeyHMAC(platform.KID, platform.Secret).GetSignedHeader(nonce)
-
-	// Call HTTP request
-	httpClient := &http.Client{Timeout: RequestTimeout}
-	res, err := httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	// Convert response body to []byte
-	resBody, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return err
-	}
-
-	// Check for API error
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("ERR: checkBalance: Unexpected response from opendax.cloud: %s", resBody)
-	}
-
-	return nil
-}
-
 // CreatePlatform to handler '/api/v2/admin/platforms/new'
 func CreatePlatform(ctx *gin.Context) {
 	// Get Opendax config
@@ -396,14 +362,6 @@ func CreatePlatform(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("ERROR: Can't get sonic context: %s", err.Error())
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Check balance (this API call creates member on peatio)
-	balanceErr := checkBalance(platform, odaxUrl)
-	if balanceErr != nil {
-		log.Printf("ERROR: Failed to get member balance: %s", balanceErr.Error())
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": balanceErr.Error()})
 		return
 	}
 

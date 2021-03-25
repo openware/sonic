@@ -47,8 +47,8 @@ github.com/openware/pkg/database v0.0.0-20210113145702-fb5cceb8f775/go.mod h1:r8
 github.com/openware/pkg/ika v0.0.0-20210110002944-50c944a5e00d/go.mod h1:8Gf39BJibV3+xVFSga1Nda5s1e8yw5fa10+mKqo67q4=
 github.com/openware/pkg/ika v0.0.0-20210204083929-709d949cb0ff h1:jLKerF+ZbVHfT3vvwuUphkR9T1OhCiBy8jeXwLFosHs=
 github.com/openware/pkg/ika v0.0.0-20210204083929-709d949cb0ff/go.mod h1:8Gf39BJibV3+xVFSga1Nda5s1e8yw5fa10+mKqo67q4=
-github.com/openware/pkg/mngapi v0.0.0-20210312074626-3d99e6d03afb h1:iOTED06Z0bFcSzJTAU6FyRhz0l2IYLLlSyRQSo/OoME=
-github.com/openware/pkg/mngapi v0.0.0-20210312074626-3d99e6d03afb/go.mod h1:41rKG0I4Nnd9xPTHflQmz2NEGqORuFMZEbRhkY1SaxE=
+github.com/openware/pkg/mngapi v0.0.0-20210323150825-66343ce05032 h1:fZ8SRYWiNFssWAQh2uwE5FnMBTl6HYYtwUIflpGjjao=
+github.com/openware/pkg/mngapi v0.0.0-20210323150825-66343ce05032/go.mod h1:41rKG0I4Nnd9xPTHflQmz2NEGqORuFMZEbRhkY1SaxE=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

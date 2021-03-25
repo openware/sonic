@@ -245,7 +245,7 @@ func createOpendaxEngine(sc *SonicContext, auth *jwt.Auth, params *CreatePlatfor
 	return engineID, nil
 }
 
-func createMarkets(sc *SonicContext, engineID string) error {
+func updateMarkets(sc *SonicContext, engineID string) error {
 	// Get list of markets
 	markets, apiError := sc.PeatioClient.GetMarkets()
 	if apiError != nil {
@@ -416,7 +416,15 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 
 	// Manage markets
-	err = createMarkets(sc, engineID)
+	err = updateMarkets(sc, engineID)
+	if err != nil {
+		log.Printf("ERROR: Failed to update markets: %s", err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Create markets from openfinex-cloud
+	err = daemons.FetchMarketsFromOpenfinexCloud(sc.PeatioClient, opendaxConfig.Addr, platform.PID)
 	if err != nil {
 		log.Printf("ERROR: Failed to create markets: %s", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

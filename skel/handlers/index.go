@@ -104,6 +104,9 @@ func Setup(app *sonic.Runtime) {
 
 	// Run LicenseRenewal
 	go daemons.LicenseRenewal("finex", app, vaultService)
+
+	// Run FetchMarkets
+	go daemons.FetchMarkets(peatioClient, vaultService, opendaxConfig.Addr)
 }
 
 // StartConfigCaching will fetch latest data from vault every 30 seconds

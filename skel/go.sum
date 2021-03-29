@@ -201,8 +201,8 @@ github.com/openware/pkg/jwt v0.0.0-20210204083929-709d949cb0ff/go.mod h1:LB6Vl3p
 github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d h1:4qKQDWBN67YlA228Q8nrtOWCdzk6eYiOzUsPFeBgxFE=
 github.com/openware/pkg/kli v0.0.0-20210110002944-50c944a5e00d/go.mod h1:GOlHexRI3ZB6oePaiqObLDwZ6/FmrmTb6hho62wehOE=
 github.com/openware/pkg/mngapi v0.0.0-20210204083929-709d949cb0ff/go.mod h1:41rKG0I4Nnd9xPTHflQmz2NEGqORuFMZEbRhkY1SaxE=
-github.com/openware/pkg/mngapi v0.0.0-20210324093355-1ac2290ada1a h1:tzhEa8VgnFdn3Ph6Ul/Tbwcyne38yn9Z/sC/KvdK/dw=
-github.com/openware/pkg/mngapi v0.0.0-20210324093355-1ac2290ada1a/go.mod h1:41rKG0I4Nnd9xPTHflQmz2NEGqORuFMZEbRhkY1SaxE=
+github.com/openware/pkg/mngapi v0.0.0-20210331084631-b25942b00544 h1:OfWkdNGqaqWSxKLL6trUcJCn4MOfsdM8/Of7c9tmJhM=
+github.com/openware/pkg/mngapi v0.0.0-20210331084631-b25942b00544/go.mod h1:41rKG0I4Nnd9xPTHflQmz2NEGqORuFMZEbRhkY1SaxE=
 github.com/openware/pkg/utils v0.0.0-20210204083929-709d949cb0ff h1:xPVv4LSNSSDla4U7vP6s2Idn5rBIhZuL9flYbiF4vig=
 github.com/openware/pkg/utils v0.0.0-20210204083929-709d949cb0ff/go.mod h1:xnqmuSO0HWDHKC4i+vNL6WkcSBSl02Jx8PHuq78o7a8=
 github.com/openware/sonic v0.0.0-20210219120221-2c220ea19081 h1:0bJyoqqdON2ED7umsz+cBJENxMgkg6dQRnalI1CXJ64=
@@ -232,6 +232,8 @@ github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81P
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/thoas/go-funk v0.8.0 h1:JP9tKSvnpFVclYgDM0Is7FD9M4fhPvqA0s0BsXmzSRQ=
+github.com/thoas/go-funk v0.8.0/go.mod h1:+IWnUfUmFO1+WVYQWQtIJHeRRdaIyyYglZN7xzUPe4Q=
 github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926/go.mod h1:9ESjWnEqriFuLhtthL60Sar/7RFoluCcXsuvEwTV5KM=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/ugorji/go v1.1.7/go.mod h1:kZn38zHttfInRq0xu/PH0az30d+z6vm202qpg1oXVMw=

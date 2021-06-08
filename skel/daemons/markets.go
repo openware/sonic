@@ -63,14 +63,9 @@ func FetchMarkets(peatioClient *peatio.Client, vaultService *vault.Service, open
 		if err != nil {
 			log.Printf("ERR: FetchMarkets: %v", err.Error())
 		} else {
-			enabled, err := getXLNEnabledFromVault(vaultService)
-			if err != nil {
-				log.Printf("ERR: FetchMarkets: %v", err.Error())
-			} else if enabled {
-				shouldRestart, err := fetchMarketsFromOpenfinexCloud(peatioClient, opendaxAddr, platformID)
-				if shouldRestart && err == nil {
-					setFinexRestart(vaultService, time.Now().Unix())
-				}
+			shouldRestart, err := fetchMarketsFromOpenfinexCloud(peatioClient, opendaxAddr, platformID)
+			if shouldRestart && err == nil {
+				setFinexRestart(vaultService, time.Now().Unix())
 			}
 		}
 		<-time.After(5 * time.Minute)

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/openware/kaigara/pkg/vault"
@@ -66,28 +67,33 @@ func FetchMarkets(peatioClient *peatio.Client, vaultService *vault.Service, open
 			if err != nil {
 				log.Printf("ERR: FetchMarkets: %v", err.Error())
 			} else if enabled {
-				FetchMarketsFromOpenfinexCloud(peatioClient, opendaxAddr, platformID)
+				shouldRestart, err := fetchMarketsFromOpenfinexCloud(peatioClient, opendaxAddr, platformID)
+				if shouldRestart && err == nil {
+					setFinexRestart(vaultService, time.Now().Unix())
+				}
 			}
 		}
 		<-time.After(5 * time.Minute)
 	}
 }
 
-func FetchMarketsFromOpenfinexCloud(peatioClient *peatio.Client, opendaxAddr string, platformID string) error {
+func fetchMarketsFromOpenfinexCloud(peatioClient *peatio.Client, opendaxAddr string, platformID string) (bool, error) {
 	url := fmt.Sprintf("%s/api/v2/opx/markets", opendaxAddr)
 	response, err := getResponse(url, platformID)
-
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Create currencies
 	createCurrencies(peatioClient, response.Currencies)
 
 	// Create markets
-	createMarkets(peatioClient, response.Markets)
+	return createMarkets(peatioClient, response.Markets), nil
+}
 
-	return nil
+func FetchMarketsFromOpenfinexCloud(peatioClient *peatio.Client, opendaxAddr string, platformID string) error {
+	_, err := fetchMarketsFromOpenfinexCloud(peatioClient, opendaxAddr, platformID)
+	return err
 }
 
 func getResponse(url string, platformID string) (*Response, error) {
@@ -171,7 +177,9 @@ func createCurrencies(peatioClient *peatio.Client, currencies []CurrencyResponse
 	}
 }
 
-func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) {
+func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) bool {
+	shouldRestart := false
+
 	for _, market := range markets {
 		// Find market by ID, if there is no system will create
 		res, apiError := peatioClient.GetMarketByID(market.ID)
@@ -192,8 +200,25 @@ func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) {
 
 			_, apiError := peatioClient.CreateMarket(marketParams)
 			if apiError != nil {
-				log.Printf("ERROR: createMarkets: Can't create market with id %s. Error: %v. Errors: %v", market.ID, apiError.Error, apiError.Errors)
+				log.Printf("ERROR: createMarkets: Can't create market with id %s. Error: %v. Errors: %v",
+					market.ID, apiError.Error, apiError.Errors)
+			}
+		} else if res != nil && (market.MinPrice >= res.MinPrice || market.MinAmount >= res.MinAmount) {
+			shouldRestart = true
+			marketParams := peatio.UpdateMarketParams{
+				ID:        res.ID,
+				EngineID:  strconv.Itoa(res.EngineID),
+				MinPrice:  market.MinPrice,
+				MaxPrice:  market.MaxPrice,
+				MinAmount: market.MinAmount,
+			}
+			_, apiError := peatioClient.UpdateMarket(marketParams)
+			if apiError != nil {
+				log.Printf("ERROR: createMarkets: Can't create market with id %s. Error: %v. Errors: %v",
+					market.ID, apiError.Error, apiError.Errors)
 			}
 		}
 	}
+
+	return shouldRestart
 }

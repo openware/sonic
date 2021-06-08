@@ -258,3 +258,45 @@ func saveLicenseToVault(app string, vaultService *vault.Service, license string)
 
 	return nil
 }
+func getFinexRestart(vaultService *vault.Service) (int64, error) {
+	app := "finex"
+	scope := "private"
+
+	// Load secret
+	vaultService.LoadSecrets(app, scope)
+
+	// Get secret
+	licRaw, err := vaultService.GetSecret(app, "finex_restart", scope)
+	if err != nil {
+		return 0, err
+	}
+
+	lic, ok := licRaw.(int64)
+	if !ok {
+		return 0, fmt.Errorf("ERR: getFinexRestart: The license key is empty in Vault")
+	}
+
+	return lic, nil
+}
+
+func setFinexRestart(vaultService *vault.Service, timestamp int64) error {
+	app := "finex"
+	scope := "private"
+
+	// Load secret
+	vaultService.LoadSecrets(app, scope)
+
+	// Get secret
+	err := vaultService.SetSecret(app, "finex_restart", timestamp, scope)
+	if err != nil {
+		return err
+	}
+
+	// Save secret
+	err = vaultService.SaveSecrets(app, scope)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

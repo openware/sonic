@@ -185,6 +185,22 @@ func getPlatformIDFromVault(vaultService *vault.Service) (string, error) {
 	return result.(string), nil
 }
 
+func getXLNEnabledFromVault(vaultService *vault.Service) (bool, error) {
+	app := "sonic"
+	scope := "secret"
+	key := "xln_enabled"
+
+	// Load secret
+	vaultService.LoadSecrets(app, scope)
+	// Get secret
+	result, err := vaultService.GetSecret(app, key, scope)
+	if err != nil {
+		return false, err
+	}
+
+	return result.(bool), nil
+}
+
 func getPrivateKeyFromVault(vaultService *vault.Service) (string, error) {
 	app := "sonic"
 	scope := "secret"

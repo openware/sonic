@@ -108,7 +108,7 @@ func Setup(app *sonic.Runtime) {
 	// Run FetchMarkets
 	enabled, err := daemons.GetXLNEnabledFromVault(vaultService)
 	if err != nil {
-		log.Printf("Can't create peatio client: " + err.Error())
+		log.Printf("cannot determine whether XLN is enabled: " + err.Error())
 	}
 	if enabled {
 		go daemons.FetchMarkets(peatioClient, vaultService, opendaxConfig.Addr)

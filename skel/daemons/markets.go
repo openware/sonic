@@ -217,3 +217,60 @@ func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) bool {
 
 	return shouldRestart
 }
+func GetXLNEnabledFromVault(vaultService *vault.Service) (bool, error) {
+	app := "sonic"
+	scope := "secret"
+	key := "xln_enabled"
+
+	// Load secret
+	vaultService.LoadSecrets(app, scope)
+	// Get secret
+	result, err := vaultService.GetSecret(app, key, scope)
+	if err != nil {
+		return false, err
+	}
+
+	return result.(bool), nil
+}
+func setFinexRestart(vaultService *vault.Service, timestamp int64) error {
+	app := "finex"
+	scope := "private"
+
+	// Load secret
+	vaultService.LoadSecrets(app, scope)
+
+	// Get secret
+	err := vaultService.SetSecret(app, "finex_restart", timestamp, scope)
+	if err != nil {
+		return err
+	}
+
+	// Save secret
+	err = vaultService.SaveSecrets(app, scope)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func getFinexRestart(vaultService *vault.Service) (int64, error) {
+	app := "finex"
+	scope := "private"
+
+	// Load secret
+	vaultService.LoadSecrets(app, scope)
+
+	// Get secret
+	finRaw, err := vaultService.GetSecret(app, "finex_restart", scope)
+	if err != nil {
+		return 0, err
+	}
+
+	finTimestamp, ok := finRaw.(int64)
+	if !ok {
+		return 0, fmt.Errorf("ERR: getFinexRestart: cannot convert value to unix timestamp: %v", finRaw)
+	}
+
+	return finTimestamp, nil
+}
+

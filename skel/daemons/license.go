@@ -185,22 +185,6 @@ func getPlatformIDFromVault(vaultService *vault.Service) (string, error) {
 	return result.(string), nil
 }
 
-func GetXLNEnabledFromVault(vaultService *vault.Service) (bool, error) {
-	app := "sonic"
-	scope := "secret"
-	key := "xln_enabled"
-
-	// Load secret
-	vaultService.LoadSecrets(app, scope)
-	// Get secret
-	result, err := vaultService.GetSecret(app, key, scope)
-	if err != nil {
-		return false, err
-	}
-
-	return result.(bool), nil
-}
-
 func getPrivateKeyFromVault(vaultService *vault.Service) (string, error) {
 	app := "sonic"
 	scope := "secret"
@@ -246,48 +230,6 @@ func saveLicenseToVault(app string, vaultService *vault.Service, license string)
 
 	// Get secret
 	err := vaultService.SetSecret(app, "finex_license_key", license, scope)
-	if err != nil {
-		return err
-	}
-
-	// Save secret
-	err = vaultService.SaveSecrets(app, scope)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-func getFinexRestart(vaultService *vault.Service) (int64, error) {
-	app := "finex"
-	scope := "private"
-
-	// Load secret
-	vaultService.LoadSecrets(app, scope)
-
-	// Get secret
-	licRaw, err := vaultService.GetSecret(app, "finex_restart", scope)
-	if err != nil {
-		return 0, err
-	}
-
-	lic, ok := licRaw.(int64)
-	if !ok {
-		return 0, fmt.Errorf("ERR: getFinexRestart: The license key is empty in Vault")
-	}
-
-	return lic, nil
-}
-
-func setFinexRestart(vaultService *vault.Service, timestamp int64) error {
-	app := "finex"
-	scope := "private"
-
-	// Load secret
-	vaultService.LoadSecrets(app, scope)
-
-	// Get secret
-	err := vaultService.SetSecret(app, "finex_restart", timestamp, scope)
 	if err != nil {
 		return err
 	}

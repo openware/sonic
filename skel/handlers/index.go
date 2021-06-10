@@ -111,7 +111,7 @@ func Setup(app *sonic.Runtime) {
 		log.Printf("cannot determine whether XLN is enabled: " + err.Error())
 	}
 	if enabled {
-		go daemons.FetchMarkets(peatioClient, vaultService, opendaxConfig.Addr)
+		go daemons.FetchConfigurationPeriodic(peatioClient, vaultService, opendaxConfig.Addr)
 	}
 }
 

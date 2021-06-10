@@ -20,7 +20,7 @@ type cache struct {
 func GetOpendaxConfig(ctx *gin.Context) (*sonic.OpendaxConfig, error) {
 	config, ok := ctx.MustGet("OpendaxConfig").(*sonic.OpendaxConfig)
 	if !ok {
-		return nil, fmt.Errorf("Opendax config is not found")
+		return nil, fmt.Errorf("opendax config is not found")
 	}
 
 	return config, nil
@@ -29,7 +29,7 @@ func GetOpendaxConfig(ctx *gin.Context) (*sonic.OpendaxConfig, error) {
 func GetSonicCtx(ctx *gin.Context) (*SonicContext, error) {
 	sctx, ok := ctx.MustGet("sctx").(*SonicContext)
 	if !ok {
-		return nil, fmt.Errorf("Sonic config is not found")
+		return nil, fmt.Errorf("sonic config is not found")
 	}
 
 	return sctx, nil
@@ -39,7 +39,7 @@ func GetSonicCtx(ctx *gin.Context) (*SonicContext, error) {
 func GetAuth(ctx *gin.Context) (*jwt.Auth, error) {
 	auth, ok := ctx.MustGet("auth").(*jwt.Auth)
 	if !ok {
-		return nil, fmt.Errorf("Auth is not found")
+		return nil, fmt.Errorf("auth is not found")
 	}
 
 	return auth, nil
@@ -49,7 +49,7 @@ func GetAuth(ctx *gin.Context) (*jwt.Auth, error) {
 func GetVaultService(ctx *gin.Context) (*vault.Service, error) {
 	vaultService, ok := ctx.MustGet("VaultService").(*vault.Service)
 	if !ok {
-		return nil, fmt.Errorf("Global vault service is not found")
+		return nil, fmt.Errorf("global vault service is not found")
 	}
 
 	return vaultService, nil

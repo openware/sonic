@@ -106,7 +106,13 @@ func Setup(app *sonic.Runtime) {
 	go daemons.LicenseRenewal("finex", app, vaultService)
 
 	// Fetch currencies and markets from the main platform periodically
-	go daemons.FetchConfigurationPeriodic(peatioClient, vaultService, opendaxConfig.Addr)
+	enabled, err := daemons.GetXLNEnabledFromVault(vaultService)
+	if err != nil {
+		log.Printf("cannot determine whether XLN is enabled: " + err.Error())
+	}
+	if enabled {
+		go daemons.FetchConfigurationPeriodic(peatioClient, vaultService, opendaxConfig.Addr)
+	}
 }
 
 // StartConfigCaching will fetch latest data from vault every 30 seconds

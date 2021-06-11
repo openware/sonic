@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -67,29 +68,35 @@ func FetchConfigurationPeriodic(peatioClient *peatio.Client, vaultService *vault
 		if err != nil {
 			log.Printf("ERR: FetchMarkets: %v", err.Error())
 		} else {
-			FetchConfiguration(peatioClient, opendaxAddr, platformID)
+			if shouldRestart, err := fetchConfiguration(peatioClient, opendaxAddr, platformID); err == nil && shouldRestart {
+				go setFinexRestart(vaultService, time.Now().Unix())
+			}
 		}
 		<-time.After(5 * time.Minute)
 	}
 }
-
-func FetchConfiguration(peatioClient *peatio.Client, opendaxAddr string, platformID string) error {
+func fetchConfiguration(peatioClient *peatio.Client, opendaxAddr, platformID string) (bool, error) {
 	url := fmt.Sprintf("%s/api/v2/opx/markets", opendaxAddr)
 	response, err := getResponse(url, platformID)
 
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Create currencies
 	createCurrencies(peatioClient, response.Currencies)
 
 	// Create markets
-	createMarkets(peatioClient, response.Markets)
+	shouldRestart := createMarkets(peatioClient, response.Markets)
 
 	// Create wallets
 	createWallets(peatioClient, opendaxAddr, response.Currencies)
-	return nil
+	return shouldRestart, nil
+}
+
+func FetchConfiguration(peatioClient *peatio.Client, opendaxAddr string, platformID string) error {
+	_, err := fetchConfiguration(peatioClient, opendaxAddr, platformID)
+	return err
 }
 
 func getResponse(url string, platformID string) (*Response, error) {
@@ -174,7 +181,7 @@ func createCurrencies(peatioClient *peatio.Client, currencies []CurrencyResponse
 	}
 }
 
-func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) {
+func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) (shouldRestart bool) {
 	for _, market := range markets {
 		// Find market by ID, if there is no system will create
 		res, apiError := peatioClient.GetMarketByID(market.ID)
@@ -197,8 +204,23 @@ func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) {
 			if apiError != nil {
 				log.Printf("ERROR: createMarkets: Can't create market with id %s. Error: %v. Errors: %v", market.ID, apiError.Error, apiError.Errors)
 			}
+		} else if res != nil && (market.MinPrice >= res.MinPrice || market.MinAmount >= res.MinAmount) {
+			shouldRestart = true
+			marketParams := peatio.UpdateMarketParams{
+				ID:        res.ID,
+				EngineID:  strconv.Itoa(res.EngineID),
+				MinPrice:  market.MinPrice,
+				MaxPrice:  market.MaxPrice,
+				MinAmount: market.MinAmount,
+			}
+			_, apiError := peatioClient.UpdateMarket(marketParams)
+			if apiError != nil {
+				log.Printf("ERROR: createMarkets: Can't create market with id %s. Error: %v. Errors: %v",
+					market.ID, apiError.Error, apiError.Errors)
+			}
 		}
 	}
+	return
 }
 
 // Method createWallets creates or updates wallet configuration
@@ -373,4 +395,61 @@ func getWallet(peatioClient *peatio.Client, wallet *peatio.Wallet) (*peatio.Wall
 		return nil, apiErr
 	}
 	return res, nil
+}
+
+func GetXLNEnabledFromVault(vaultService *vault.Service) (bool, error) {
+	app := "sonic"
+	scope := "secret"
+	key := "xln_enabled"
+
+	// Load secret
+	vaultService.LoadSecrets(app, scope)
+	// Get secret
+	result, err := vaultService.GetSecret(app, key, scope)
+	if err != nil {
+		return false, err
+	}
+
+	return result.(bool), nil
+}
+func setFinexRestart(vaultService *vault.Service, timestamp int64) error {
+	app := "finex"
+	scope := "private"
+
+	// Load secret
+	vaultService.LoadSecrets(app, scope)
+
+	// Get secret
+	err := vaultService.SetSecret(app, "finex_restart", timestamp, scope)
+	if err != nil {
+		return err
+	}
+
+	// Save secret
+	err = vaultService.SaveSecrets(app, scope)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func getFinexRestart(vaultService *vault.Service) (int64, error) {
+	app := "finex"
+	scope := "private"
+
+	// Load secret
+	vaultService.LoadSecrets(app, scope)
+
+	// Get secret
+	finRaw, err := vaultService.GetSecret(app, "finex_restart", scope)
+	if err != nil {
+		return 0, err
+	}
+
+	finTimestamp, ok := finRaw.(int64)
+	if !ok {
+		return 0, fmt.Errorf("ERR: getFinexRestart: cannot convert value to unix timestamp: %v", finRaw)
+	}
+
+	return finTimestamp, nil
 }

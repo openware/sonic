@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/openware/pkg/ika"
-	"github.com/openware/sonic/skel/config"
-	"github.com/openware/sonic/skel/database"
+	"github.com/openware/pkg/sonic/config"
+	"github.com/openware/pkg/sonic/database"
 	"log"
 
 	"github.com/gin-gonic/gin"

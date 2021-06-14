@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"github.com/openware/sonic/skel/config"
+	"github.com/openware/pkg/sonic/config"
 	"io/ioutil"
 	"log"
 

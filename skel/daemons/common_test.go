@@ -1,7 +1,7 @@
 package daemons
 
 import (
-	"github.com/openware/sonic/skel/config"
+	"github.com/openware/pkg/sonic/config"
 	"log"
 	"os"
 	"testing"

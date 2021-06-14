@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	sonic "github.com/openware/pkg/sonic/config"
-	"github.com/openware/sonic/skel/config"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -52,7 +51,7 @@ func parseLicense(lic string) (int64, int64, error) {
 }
 
 // LicenseRenewal to periodic check and renew license before expire
-func LicenseRenewal(appName string, app *config.Runtime, vaultService *vault.Service) {
+func LicenseRenewal(appName string, app *sonic.Runtime, vaultService *vault.Service) {
 	for {
 		for {
 			lic, err := getLicenseFromVault(appName, vaultService)

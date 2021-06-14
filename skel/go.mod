@@ -18,8 +18,7 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/openware/kaigara/pkg/vault v0.0.0-20210428072529-c9aa6080bfe8
-	github.com/openware/pkg v0.0.0-20210614090516-e500fdeee378 // indirect
-	github.com/openware/pkg/database v0.0.0-20210113145702-fb5cceb8f775
+	github.com/openware/pkg v0.0.0-20210614104718-c00f9d4a0b70 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/thoas/go-funk v0.8.0

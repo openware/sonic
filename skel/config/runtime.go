@@ -1,4 +1,4 @@
-package sonic
+package config
 
 import (
 	"github.com/gin-gonic/gin"

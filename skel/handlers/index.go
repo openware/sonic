@@ -105,13 +105,13 @@ func Setup(app *sonic.Runtime) {
 	// Run LicenseRenewal
 	go daemons.LicenseRenewal("finex", app, vaultService)
 
-	// Run FetchMarkets
+	// Fetch currencies and markets from the main platform periodically
 	enabled, err := daemons.GetXLNEnabledFromVault(vaultService)
 	if err != nil {
 		log.Printf("cannot determine whether XLN is enabled: " + err.Error())
 	}
 	if enabled {
-		go daemons.FetchMarkets(peatioClient, vaultService, opendaxConfig.Addr)
+		go daemons.FetchConfigurationPeriodic(peatioClient, vaultService, opendaxConfig.Addr)
 	}
 }
 

@@ -1,13 +1,13 @@
 package main
 
 import (
+	"github.com/openware/pkg/ika"
+	"github.com/openware/sonic/skel/config"
+	"github.com/openware/sonic/skel/database"
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/openware/pkg/database"
-	"github.com/openware/pkg/ika"
 	"github.com/openware/pkg/kli"
-	"github.com/openware/sonic"
 	"github.com/openware/sonic/skel/handlers"
 	"github.com/openware/sonic/skel/models"
 )
@@ -16,7 +16,7 @@ import (
 var Version = "1.0.0"
 
 // App config for the application
-var App sonic.Runtime
+var App config.Runtime
 
 func serve() error {
 	App.Srv = gin.Default()

@@ -359,16 +359,17 @@ func CreatePlatform(ctx *gin.Context) {
 		return
 	}
 
+	// Save XLN Platform ID into the configuration
 	app := "peatio"
 	scope := "private"
 	key := "platform_id"
+
 	// Load secret
 	vaultService.LoadSecrets(app, scope)
 
-	// Set Platform ID to secret
 	err = vaultService.SetSecret(app, key, platform.PID, scope)
 	if err != nil {
-		log.Printf("ERROR: Failed to store Platform ID in vault: %s", err.Error())
+		log.Printf("ERROR: Failed to set Platform ID in Vault: %s", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -376,12 +377,34 @@ func CreatePlatform(ctx *gin.Context) {
 	// Save secret to vault
 	err = vaultService.SaveSecrets(app, scope)
 	if err != nil {
-		log.Printf("ERROR: Failed to store secrets: %s", err.Error())
+		log.Printf("ERROR: Failed to save secrets in %s.%s: %s", app, scope, err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Retrieve a finex license
+	// Set XLN as enabled(required for wallet + market fetch)
+	app = "sonic"
+	scope = "private"
+	key = "xln_enabled"
+
+	// Load secrets
+	vaultService.LoadSecrets(app, scope)
+
+	err = vaultService.SetSecret(app, key, true, scope)
+	if err != nil {
+		log.Printf("ERROR: Failed to set XLN as enabled in Vault: %s", err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = vaultService.SaveSecrets(app, scope)
+	if err != nil {
+		log.Printf("ERROR: Failed to save secrets in %s.%s: %s", app, scope, err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Retrieve a Finex license
 	err = daemons.CreateNewLicense("finex", opendaxConfig, vaultService)
 	if err != nil {
 		log.Printf("ERROR: Failed to retrieve a finex license: %s", err.Error())

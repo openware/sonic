@@ -399,7 +399,7 @@ func getWallet(peatioClient *peatio.Client, wallet *peatio.Wallet) (*peatio.Wall
 
 func GetXLNEnabledFromVault(vaultService *vault.Service) (bool, error) {
 	app := "sonic"
-	scope := "secret"
+	scope := "private"
 	key := "xln_enabled"
 
 	// Load secret

@@ -409,6 +409,10 @@ func GetXLNEnabledFromVault(vaultService *vault.Service) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	
+	if result == nil {
+		result = false
+	}
 
 	return result.(bool), nil
 }

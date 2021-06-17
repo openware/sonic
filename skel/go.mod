@@ -7,10 +7,8 @@ require (
 	github.com/foolin/goview v0.3.0
 	github.com/frankban/quicktest v1.11.3 // indirect
 	github.com/gin-gonic/gin v1.7.2
-	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/golang/snappy v0.0.2 // indirect
-	github.com/gomarkdown/markdown v0.0.0-20210514010506-3b9f47219fe7
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.6.8 // indirect
@@ -18,7 +16,13 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/openware/kaigara/pkg/vault v0.0.0-20210428072529-c9aa6080bfe8
-	github.com/openware/pkg v0.0.0-20210614104718-c00f9d4a0b70 // indirect
+	github.com/openware/pkg/database v0.0.0-20210402092258-edc0b8ed56a0
+	github.com/openware/pkg/ika v0.0.0-20210402092258-edc0b8ed56a0
+	github.com/openware/pkg/jwt v0.0.0-20210427221722-08a80973e205
+	github.com/openware/pkg/kli v0.0.0-20210402092258-edc0b8ed56a0
+	github.com/openware/pkg/mngapi v0.0.0-20210611082050-d92a5be356d2
+	github.com/openware/pkg/sonic v0.0.0-20210615125010-3058204b14ff
+	github.com/openware/pkg/utils v0.0.0-20210402092258-edc0b8ed56a0
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/thoas/go-funk v0.8.0

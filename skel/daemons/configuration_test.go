@@ -15,11 +15,12 @@ import (
 const peatioManagementURL = "api/v2/peatio/management"
 
 func TestFetchConfigurationSuccess(t *testing.T) {
-	mockedResponse := []byte(`{"currencies":[{"id":"aave","name":"Aave Token","description":"","parent_id":"","homepage":"","price":"1.0","type":"coin","deposit_enabled":true,"withdrawal_enabled":true,"deposit_fee":"0.0","min_deposit_amount":"0.13764625","withdraw_fee":"0.0","min_withdraw_amount":"0.13764625","withdraw_limit_24h":"0.0","withdraw_limit_72h":"0.0","base_factor":1000000000000000000,"precision":8,"position":1,"icon_url":"https://app.storage.yellow.com/uploads/asset/icon/aave/67ba0cd807.png"}],"markets":[{"id":"omgusdt","name":"OMG/USDT","base_unit":"omg","quote_unit":"usdt","state":"enabled","amount_precision":2,"price_precision":4,"min_price":"0.0037","max_price":"3687.4597","min_amount":"0.01","position":9}]}`)
+	mockedResponse := []byte(`{"currencies":[{"id":"btc","name":"Bitcoin","description":"","homepage":"","price":"39100.0","status":"enabled","type":"coin","precision":6,"position":4,"icon_url":"","networks":[]}],"markets":[{"id":"omgusdt","name":"OMG/USDT","base_unit":"omg","quote_unit":"usdt","state":"enabled","amount_precision":2,"price_precision":4,"min_price":"0.0037","max_price":"3687.4597","min_amount":"0.01","position":9}]}`)
 	marketPeatioResponse := []byte(`{"id":"omgusdt","name":"OMG/USDT","base_unit":"omg","quote_unit":"usdt","state":"enabled","amount_precision":2,"price_precision":4,"min_price":"0.0037","max_price":"3687.4597","min_amount":"0.01","position":9}`)
-	currencyPeatioResponse := []byte(`{"id":"aave","name":"Aave Token","description":null,"homepage":null,"price":"1.0","explorer_transaction":"https://rinkeby.etherscan.io/tx/#{txid}","explorer_address":"https://rinkeby.etherscan.io/address/#{address}","type":"coin","deposit_enabled":true,"withdrawal_enabled":true,"deposit_fee":"0.0","min_deposit_amount":"0.13764625","withdraw_fee":"0.0","min_withdraw_amount":"0.13764625","withdraw_limit_24h":"0.0","withdraw_limit_72h":"0.0","base_factor":1000000000000000000,"precision":8,"position":1,"icon_url":"https://app.storage.yellow.com/uploads/asset/icon/aave/67ba0cd807.png","min_confirmations":6}`)
+	currencyPeatioResponse := []byte(`{"id":"btc","name":"Bitcoin","description":"","homepage":"","price":"39100.0","status":"enabled","type":"coin","precision":6,"position":4,"icon_url":""}`)
+	networkPeatioResponse := []byte(`{"blockchain_key":"btc-testnet","currency_id":"btc","deposit_enabled":false,"withdrawal_enabled":true,"deposit_fee":"0.0","min_deposit_amount":"0.0","withdraw_fee":"0.0000000002557544","min_withdraw_amount":"0.0000000025575447","base_factor":1000000000000000000}`)
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/v2/opx/markets", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/api/v2/opx/config", func(res http.ResponseWriter, req *http.Request) {
 		res.Write(mockedResponse)
 	})
 	mux.HandleFunc("/api/v2/peatio/management/markets/new", func(res http.ResponseWriter, req *http.Request) {
@@ -27,6 +28,9 @@ func TestFetchConfigurationSuccess(t *testing.T) {
 	})
 	mux.HandleFunc("/api/v2/peatio/management/currencies/create", func(res http.ResponseWriter, req *http.Request) {
 		res.Write(currencyPeatioResponse)
+	})
+	mux.HandleFunc("/api/v2/peatio/management/blockchain_currencies/new", func(res http.ResponseWriter, req *http.Request) {
+		res.Write(networkPeatioResponse)
 	})
 
 	ts := httptest.NewServer(mux)
@@ -45,7 +49,7 @@ func TestFetchConfigurationEmptyResponse(t *testing.T) {
 	mockedResponse := []byte(`{}`)
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/api/v2/opx/markets", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/api/v2/opx/config", func(res http.ResponseWriter, req *http.Request) {
 		res.Write(mockedResponse)
 	})
 
@@ -81,53 +85,65 @@ func TestFetchConfigurationHostError(t *testing.T) {
 func TestDivideCurrenciesIntoGroups(t *testing.T) {
 	response := []CurrencyResponse{
 		{
-			ID: "link", Name: "LINK", Description: "", ParentID: "eth", Homepage: "",
-			Price: "0.0", Type: "coin", DepositEnabled: true, WithdrawalEnabled: true,
-			DepositFee: "0.0", MinDepositAmount: "0.0", WithdrawFee: "0.0",
-			MinWithdrawAmount: "0.0", WithdrawLimit24h: "0.0", WithdrawLimit72h: "0.0",
-			BaseFactor: 8, Precision: 16, Position: 1, IconUrl: "",
+			ID: "link", Name: "LINK", Description: "", Homepage: "",
+			Price: "0.0", Type: "coin", Precision: 16, Position: 1, IconURL: "",
+			Networks: []BlockchainCurrencyResponse{{CurrencyID: "link", BlockchainKey: "eth-rinkeby", ParentID: "eth",
+				DepositEnabled: true, WithdrawEnabled: true, DepositFee: "0.0", MinDepositAmount: "0.0",
+				WithdrawFee: "0.0", MinWithdrawAmount: "0.0",
+				BaseFactor: 8}, {
+				CurrencyID: "link", BlockchainKey: "eth-rinkeby", ParentID: "",
+				DepositEnabled: true, WithdrawEnabled: true, DepositFee: "0.0", MinDepositAmount: "0.0",
+				WithdrawFee: "0.0", MinWithdrawAmount: "0.0",
+				BaseFactor: 8},
+			},
 		},
 		{
-			ID: "eth", Name: "ETH", Description: "", ParentID: "", Homepage: "",
-			Price: "0.0", Type: "coin", DepositEnabled: true, WithdrawalEnabled: true,
-			DepositFee: "0.0", MinDepositAmount: "0.0", WithdrawFee: "0.0",
-			MinWithdrawAmount: "0.0", WithdrawLimit24h: "0.0", WithdrawLimit72h: "0.0",
-			BaseFactor: 8, Precision: 16, Position: 1, IconUrl: "",
+			ID: "eth", Name: "ETH", Description: "", Homepage: "",
+			Price: "0.0", Type: "coin", Precision: 16, Position: 1, IconURL: "",
+			Networks: []BlockchainCurrencyResponse{{CurrencyID: "eth", BlockchainKey: "eth-rinkeby", ParentID: "",
+				DepositEnabled: true, WithdrawEnabled: true, DepositFee: "0.0", MinDepositAmount: "0.0",
+				WithdrawFee: "0.0", MinWithdrawAmount: "0.0",
+				BaseFactor: 8}},
 		},
 		{
-			ID: "usdt", Name: "USDT", Description: "", ParentID: "eth", Homepage: "",
-			Price: "0.0", Type: "coin", DepositEnabled: true, WithdrawalEnabled: true,
-			DepositFee: "0.0", MinDepositAmount: "0.0", WithdrawFee: "0.0",
-			MinWithdrawAmount: "0.0", WithdrawLimit24h: "0.0", WithdrawLimit72h: "0.0",
-			BaseFactor: 8, Precision: 16, Position: 1, IconUrl: "",
+			ID: "usdt", Name: "USDT", Description: "", Homepage: "",
+			Price: "0.0", Type: "coin", Precision: 16, Position: 1, IconURL: "",
+			Networks: []BlockchainCurrencyResponse{{CurrencyID: "usdt", BlockchainKey: "eth-rinkeby", ParentID: "eth",
+				DepositEnabled: true, WithdrawEnabled: true, DepositFee: "0.0", MinDepositAmount: "0.0",
+				WithdrawFee: "0.0", MinWithdrawAmount: "0.0",
+				BaseFactor: 8}},
 		},
 		{
-			ID: "eur", Name: "EUR", Description: "", ParentID: "", Homepage: "",
-			Price: "0.0", Type: "fiat", DepositEnabled: true, WithdrawalEnabled: true,
-			DepositFee: "0.0", MinDepositAmount: "0.0", WithdrawFee: "0.0",
-			MinWithdrawAmount: "0.0", WithdrawLimit24h: "0.0", WithdrawLimit72h: "0.0",
-			BaseFactor: 8, Precision: 16, Position: 1, IconUrl: "",
+			ID: "eur", Name: "EUR", Description: "", Homepage: "",
+			Price: "0.0", Type: "fiat", Precision: 16, Position: 1, IconURL: "",
+			Networks: []BlockchainCurrencyResponse{{CurrencyID: "eur", BlockchainKey: "", ParentID: "",
+				DepositEnabled: true, WithdrawEnabled: true, DepositFee: "0.0", MinDepositAmount: "0.0",
+				WithdrawFee: "0.0", MinWithdrawAmount: "0.0",
+				BaseFactor: 8}},
 		},
 		{
-			ID: "tron", Name: "TRON", Description: "", ParentID: "", Homepage: "",
-			Price: "0.0", Type: "coin", DepositEnabled: true, WithdrawalEnabled: true,
-			DepositFee: "0.0", MinDepositAmount: "0.0", WithdrawFee: "0.0",
-			MinWithdrawAmount: "0.0", WithdrawLimit24h: "0.0", WithdrawLimit72h: "0.0",
-			BaseFactor: 8, Precision: 16, Position: 1, IconUrl: "",
+			ID: "tron", Name: "TRON", Description: "", Homepage: "",
+			Price: "0.0", Type: "coin", Precision: 16, Position: 1, IconURL: "",
+			Networks: []BlockchainCurrencyResponse{{CurrencyID: "tron", BlockchainKey: "tron-testnet", ParentID: "",
+				DepositEnabled: true, WithdrawEnabled: true, DepositFee: "0.0", MinDepositAmount: "0.0",
+				WithdrawFee: "0.0", MinWithdrawAmount: "0.0",
+				BaseFactor: 8}},
 		},
 		{
-			ID: "xrp", Name: "XRP", Description: "", ParentID: "", Homepage: "",
-			Price: "0.0", Type: "coin", DepositEnabled: true, WithdrawalEnabled: true,
-			DepositFee: "0.0", MinDepositAmount: "0.0", WithdrawFee: "0.0",
-			MinWithdrawAmount: "0.0", WithdrawLimit24h: "0.0", WithdrawLimit72h: "0.0",
-			BaseFactor: 8, Precision: 16, Position: 1, IconUrl: "",
+			ID: "xrp", Name: "XRP", Description: "", Homepage: "",
+			Price: "0.0", Type: "coin", Precision: 16, Position: 1, IconURL: "",
+			Networks: []BlockchainCurrencyResponse{{CurrencyID: "xrp", BlockchainKey: "xrp-testnet", ParentID: "",
+				DepositEnabled: true, WithdrawEnabled: true, DepositFee: "0.0", MinDepositAmount: "0.0",
+				WithdrawFee: "0.0", MinWithdrawAmount: "0.0",
+				BaseFactor: 8}},
 		},
 		{
-			ID: "txrp", Name: "TXRP", Description: "", ParentID: "xrp", Homepage: "",
-			Price: "0.0", Type: "coin", DepositEnabled: true, WithdrawalEnabled: true,
-			DepositFee: "0.0", MinDepositAmount: "0.0", WithdrawFee: "0.0",
-			MinWithdrawAmount: "0.0", WithdrawLimit24h: "0.0", WithdrawLimit72h: "0.0",
-			BaseFactor: 8, Precision: 16, Position: 1, IconUrl: "",
+			ID: "txrp", Name: "TXRP", Description: "", Homepage: "",
+			Price: "0.0", Type: "coin", Precision: 16, Position: 1, IconURL: "",
+			Networks: []BlockchainCurrencyResponse{{CurrencyID: "txrp", BlockchainKey: "xrp-testnet", ParentID: "xrp",
+				DepositEnabled: true, WithdrawEnabled: true, DepositFee: "0.0", MinDepositAmount: "0.0",
+				WithdrawFee: "0.0", MinWithdrawAmount: "0.0",
+				BaseFactor: 8}},
 		},
 	}
 

@@ -36,25 +36,41 @@ type MarketResponse struct {
 
 // Define currency response data
 type CurrencyResponse struct {
-	ID                string `json:"id"`
-	Name              string `json:"name"`
-	Description       string `json:"description"`
-	ParentID          string `json:"parent_id"`
-	Homepage          string `json:"homepage"`
-	Price             string `json:"price"`
-	Type              string `json:"type"`
-	DepositEnabled    bool   `json:"deposit_enabled"`
-	WithdrawalEnabled bool   `json:"withdrawal_enabled"`
-	DepositFee        string `json:"deposit_fee"`
-	MinDepositAmount  string `json:"min_deposit_amount"`
-	WithdrawFee       string `json:"withdraw_fee"`
-	MinWithdrawAmount string `json:"min_withdraw_amount"`
-	WithdrawLimit24h  string `json:"withdraw_limit_24h"`
-	WithdrawLimit72h  string `json:"withdraw_limit_72h"`
-	BaseFactor        int64  `json:"base_factor"`
-	Precision         int64  `json:"precision"`
-	Position          int64  `json:"position"`
-	IconUrl           string `json:"icon_url"`
+	ID          string                       `json:"id"`
+	Name        string                       `json:"name"`
+	Description string                       `json:"description"`
+	Homepage    string                       `json:"homepage"`
+	Price       string                       `json:"price"`
+	Status      string                       `json:"status"`
+	Type        string                       `json:"type"`
+	Precision   uint64                       `json:"precision"`
+	Position    uint64                       `json:"position"`
+	IconURL     string                       `json:"icon_url"`
+	Code        string                       `json:"code"`
+	Networks    []BlockchainCurrencyResponse `json:"networks"`
+}
+
+// Define network response data
+type BlockchainCurrencyResponse struct {
+	ID                  string                 `json:"id"`
+	CurrencyID          string                 `json:"currency_id"`
+	BlockchainKey       string                 `json:"blockchain_key"`
+	ParentID            string                 `json:"parent_id"`
+	Status              string                 `json:"status"`
+	Type                string                 `json:"type"`
+	DepositEnabled      bool                   `json:"deposit_enabled"`
+	WithdrawEnabled     bool                   `json:"withdrawal_enabled"`
+	DepositFee          string                 `json:"deposit_fee"`
+	MinDepositAmount    string                 `json:"min_deposit_amount"`
+	WithdrawFee         string                 `json:"withdraw_fee"`
+	MinWithdrawAmount   string                 `json:"min_withdraw_amount"`
+	BaseFactor          uint64                 `json:"base_factor"`
+	Warning             string                 `json:"warning"`
+	Description         string                 `json:"description"`
+	Protocol            string                 `json:"protocol"`
+	MinConfirmations    uint64                 `json:"min_confirmations"`
+	MinCollectionAmount string                 `json:"min_collection_amount"`
+	Options             map[string]interface{} `json:"options"`
 }
 
 type Response struct {
@@ -66,7 +82,7 @@ func FetchConfigurationPeriodic(peatioClient *peatio.Client, vaultService *vault
 	for {
 		platformID, err := getPlatformIDFromVault(vaultService)
 		if err != nil {
-			log.Printf("ERR: FetchMarkets: %v", err.Error())
+			log.Printf("ERR: FetchConfiguration: %v", err.Error())
 		} else {
 			if shouldRestart, err := fetchConfiguration(peatioClient, opendaxAddr, platformID); err == nil && shouldRestart {
 				go setFinexRestart(vaultService, time.Now().Unix())
@@ -75,16 +91,17 @@ func FetchConfigurationPeriodic(peatioClient *peatio.Client, vaultService *vault
 		<-time.After(5 * time.Minute)
 	}
 }
+
 func fetchConfiguration(peatioClient *peatio.Client, opendaxAddr, platformID string) (bool, error) {
-	url := fmt.Sprintf("%s/api/v2/opx/markets", opendaxAddr)
+	url := fmt.Sprintf("%s/api/v2/opx/config", opendaxAddr)
 	response, err := getResponse(url, platformID)
 
 	if err != nil {
 		return false, err
 	}
 
-	// Create currencies
-	createCurrencies(peatioClient, response.Currencies)
+	// Create currencies and networks
+	createCurrenciesWithNetworks(peatioClient, response.Currencies)
 
 	// Create markets
 	shouldRestart := createMarkets(peatioClient, response.Markets)
@@ -142,45 +159,66 @@ func getResponse(url string, platformID string) (*Response, error) {
 	return response, nil
 }
 
-func createCurrencies(peatioClient *peatio.Client, currencies []CurrencyResponse) {
+func createCurrenciesWithNetworks(peatioClient *peatio.Client, currencies []CurrencyResponse) {
 	for _, currency := range currencies {
 		// Find currency by code, if there is no system will create
 		res, apiError := peatioClient.GetCurrencyByCode(currency.ID)
 		// Check result here
 		if res == nil && apiError != nil {
 			currencyParams := peatio.CreateCurrencyParams{
-				Code:                currency.ID,
-				Type:                currency.Type,
-				BaseFactor:          currency.BaseFactor,
-				Position:            currency.Position,
-				DepositFee:          currency.DepositFee,
-				ParentID:            currency.ParentID,
-				MinDepositAmount:    currency.MinDepositAmount,
-				WithdrawFee:         currency.WithdrawFee,
-				MinCollectionAmount: currency.MinDepositAmount,
-				MinWithdrawAmount:   currency.MinWithdrawAmount,
-				WithdrawLimit24:     currency.WithdrawLimit24h,
-				WithdrawLimit72:     currency.WithdrawLimit72h,
-				DepositEnabled:      currency.DepositEnabled,
-				WithdrawEnabled:     currency.WithdrawalEnabled,
-				Precision:           currency.Precision,
-				Price:               currency.Price,
-				IconURL:             currency.IconUrl,
-				Description:         currency.Description,
-				Homepage:            currency.Homepage,
-			}
-			if currency.Type == "coin" {
-				currencyParams.BlockchainKey = "opendax-cloud"
+				Code:        currency.ID,
+				Type:        currency.Type,
+				Name:        currency.Name,
+				Status:      currency.Status,
+				Precision:   int64(currency.Precision),
+				Price:       currency.Price,
+				IconURL:     currency.IconURL,
+				Description: currency.Description,
+				Homepage:    currency.Homepage,
 			}
 
 			_, apiError := peatioClient.CreateCurrency(currencyParams)
 			if apiError != nil {
-				log.Printf("ERROR: createCurrencies: Can't create currency with code %s. Error: %v. Errors: %v", currency.ID, apiError.Error, apiError.Errors)
+				log.Printf("ERROR: createCurrenciesWithNetworks: Can't create currency with code %s. Error: %v. Errors: %v", currency.ID, apiError.Error, apiError.Errors)
 			}
+
+			// create currency networks
+			createNetworks(peatioClient, currency)
 		}
 	}
 }
 
+func createNetworks(peatioClient *peatio.Client, currency CurrencyResponse) {
+	for _, network := range currency.Networks {
+		// Find network by currency_id, blockchain_jey, if there is no system will create
+		res, apiError := peatioClient.GetBlockchainCurrencyByID(network.ID)
+		// Check result here
+		if res == nil && apiError != nil {
+			networkParams := peatio.CreateBlockchainCurrencyParams{
+				CurrencyID:          network.CurrencyID,
+				BaseFactor:          int64(network.BaseFactor),
+				ParentID:            network.ParentID,
+				DepositFee:          network.DepositFee,
+				MinDepositAmount:    network.MinDepositAmount,
+				MinCollectionAmount: network.MinCollectionAmount,
+				WithdrawFee:         network.WithdrawFee,
+				MinWithdrawAmount:   network.MinWithdrawAmount,
+				DepositEnabled:      network.DepositEnabled,
+				WithdrawEnabled:     network.WithdrawEnabled,
+				Status:              network.Status,
+				Options:             network.Options,
+			}
+			if currency.Type == "coin" {
+				networkParams.BlockchainKey = "opendax-cloud"
+			}
+
+			_, apiError := peatioClient.CreateBlockchainCurrency(networkParams)
+			if apiError != nil {
+				log.Printf("ERROR: createCurrenciesWithNetworks: Can't create network with blockchain key %s and currency id %s. Error: %v. Errors: %v", network.BlockchainKey, network.CurrencyID, apiError.Error, apiError.Errors)
+			}
+		}
+	}
+}
 func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) (shouldRestart bool) {
 	for _, market := range markets {
 		// Find market by ID, if there is no system will create
@@ -282,18 +320,29 @@ func updatePartiallyMatchedWallet(peatioClient *peatio.Client, w *peatio.Wallet,
 // For example {"eth": ["eth", "usdt", "link"]}
 func divideCurrenciesIntoGroups(currencies []CurrencyResponse) map[string][]string {
 	res := make(map[string][]string)
-	// Sort currencies with empty Parent ID first
-	// It means those currencies should have separate wallet
-	sort.SliceStable(currencies, func(i, j int) bool {
-		return currencies[i].ParentID < currencies[j].ParentID
+
+	blockchainCurrencies := []BlockchainCurrencyResponse{}
+	for _, currency := range currencies {
+		// append only first network
+		// assume that all networks should have same parent_id
+		if len(currency.Networks) > 0 {
+			blockchainCurrencies = append(blockchainCurrencies, currency.Networks[0])
+		}
+	}
+
+	// Sort networks with empty Parent ID first
+	// It means those network currencies should have separate wallet
+	sort.SliceStable(blockchainCurrencies, func(i, j int) bool {
+		return blockchainCurrencies[i].ParentID < blockchainCurrencies[j].ParentID
 	})
 
-	for _, currency := range currencies {
-		if currency.Type == "coin" {
-			if currency.ParentID == "" {
-				res[currency.ID] = append(res[currency.ID], currency.ID)
+	for _, network := range blockchainCurrencies {
+		// BlockchainKey is empty in case of fiat currency type
+		if network.BlockchainKey != "" {
+			if network.ParentID == "" {
+				res[network.CurrencyID] = append(res[network.CurrencyID], network.CurrencyID)
 			} else {
-				res[currency.ParentID] = append(res[currency.ParentID], currency.ID)
+				res[network.ParentID] = append(res[network.ParentID], network.CurrencyID)
 			}
 		}
 	}
@@ -409,7 +458,7 @@ func GetXLNEnabledFromVault(vaultService *vault.Service) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	
+
 	if result == nil {
 		result = false
 	}

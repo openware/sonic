@@ -57,9 +57,20 @@ type CurrencyResponse struct {
 	IconUrl           string `json:"icon_url"`
 }
 
+// Define trading fee group response data
+type TradingFeeGroupResponse struct {
+	ID         int64  `json:"id"`
+	Group      string `json:"group"`
+	Maker      string `json:"maker"`
+	Taker      string `json:"taker"`
+	MarketID   string `json:"market_id"`
+	MarketType string `json:"market_type"`
+}
+
 type Response struct {
-	Currencies []CurrencyResponse `json:"currencies"`
-	Markets    []MarketResponse   `json:"markets"`
+	Currencies       []CurrencyResponse        `json:"currencies"`
+	Markets          []MarketResponse          `json:"markets"`
+	TradingFeeGroups []TradingFeeGroupResponse `json:"trading_fees"`
 }
 
 func FetchConfigurationPeriodic(peatioClient *peatio.Client, vaultService *vault.Service, opendaxAddr string) {
@@ -87,7 +98,7 @@ func fetchConfiguration(peatioClient *peatio.Client, opendaxAddr, platformID str
 	createCurrencies(peatioClient, response.Currencies)
 
 	// Create markets
-	shouldRestart := createMarkets(peatioClient, response.Markets)
+	shouldRestart := createMarkets(peatioClient, response.Markets, response.TradingFeeGroups)
 
 	// Create wallets
 	createWallets(peatioClient, opendaxAddr, response.Currencies)
@@ -183,10 +194,40 @@ func createCurrencies(peatioClient *peatio.Client, currencies []CurrencyResponse
 	}
 }
 
-func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) (shouldRestart bool) {
+func updateTradingFeeGroups(peatioClient *peatio.Client, tradingfeeGroups []TradingFeeGroupResponse) (shouldRestart bool) {
+	for _, tradingFeeGroup := range tradingFeeGroups {
+		feeMaker, errMaker := strconv.ParseFloat(tradingFeeGroup.maker, 32)
+		feeTaker, errTaker := strconv.ParseFloat(tradingFeeGroup.taker, 32)
+
+		if (feeMaker != nil && errMaker == nil && feeTaker != nil && errTaker == nil) {
+			updatedFeeMaker := feeMaker * xlmFeeValueMultiplier
+			updatedFeeTaker := feeTaker * xlmFeeValueMultiplier
+
+			tradingFeeGroupParams := peatio.UpdateTradingFeeParams{
+				ID: tradingFeeGroup.ID,
+				Group: tradingFeeGroup.Group,
+				Maker: strconv.FormatFloat(updatedFeeMaker, 'E', -1, 32),
+				Taker: strconv.FormatFloat(updatedFeeTaker, 'E', -1, 32),
+				MarketID: tradingFeeGroup.MarketID,
+				MarketType: tradingFeeGroup.MarketType,
+			}
+
+			_, apiError := peatioClient.UpdateTradingFeeGroup(tradingFeeGroupParams)
+			if apiError != nil {
+				log.Printf("ERROR: updateTradingFeeGroups: Can't update trading fee group with id %d. Error: %v. Errors: %v",
+					market.ID, apiError.Error, apiError.Errors)
+			}
+		}
+	}
+
+	return
+}
+
+func createMarkets(peatioClient *peatio.Client, markets []MarketResponse, tradingfeeGroups []TradingFeeGroupResponse) (shouldRestart bool) {
 	for _, market := range markets {
 		// Find market by ID, if there is no system will create
 		res, apiError := peatioClient.GetMarketByID(market.ID)
+
 		// Check result here
 		if res == nil && apiError != nil {
 			marketParams := peatio.CreateMarketParams{
@@ -239,6 +280,13 @@ func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) (shoul
 			}
 		}
 	}
+
+	xlmFeeValueMultiplier, err := GetXLNFeeMultiplierFromVault(vaultService)
+
+	if (xlmFeeValueMultiplier != nil && err == nil) {
+		updateFeeGroups(peatioClient, tradingfeeGroups)
+	}
+
 	return
 }
 
@@ -434,6 +482,27 @@ func GetXLNEnabledFromVault(vaultService *vault.Service) (bool, error) {
 
 	return result.(bool), nil
 }
+
+func GetXLNFeeMultiplierFromVault(vaultService *vault.Service) (float32, error) {
+	app := "sonic"
+	scope := "private"
+	key := "xln_fee_multiplier"
+
+	// Load secret
+	vaultService.LoadSecrets(app, scope)
+	// Get secret
+	result, err := vaultService.GetSecret(app, key, scope)
+	if err != nil {
+		return false, err
+	}
+
+	if result == nil {
+		result = false
+	}
+
+	return result.(float32), nil
+}
+
 func setFinexRestart(vaultService *vault.Service, timestamp int64) error {
 	app := "finex"
 	scope := "private"

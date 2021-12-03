@@ -1,6 +1,13 @@
 package handlers
 
 import (
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
 	"github.com/openware/kaigara/pkg/vault"
@@ -10,12 +17,6 @@ import (
 	"github.com/openware/pkg/utils"
 	"github.com/openware/sonic/skel/daemons"
 	"github.com/openware/sonic/skel/models"
-	"log"
-	"net/http"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
 )
 
 // Version variable stores Application Version from main package
@@ -110,7 +111,6 @@ func Setup(app *config.Runtime) {
 	}
 }
 
-
 // index render with master layer
 func index(ctx *gin.Context) {
 	cssFiles, err := FilesPaths("/public/assets/*.css")
@@ -168,7 +168,7 @@ func FilesPaths(pattern string) ([]string, error) {
 		return nil, err
 	}
 
-	for i, _ := range matches {
+	for i := range matches {
 		matches[i] = strings.Replace(matches[i], fullPath, "", -1)
 	}
 

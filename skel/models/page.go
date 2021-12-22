@@ -2,8 +2,9 @@ package models
 
 import (
 	"errors"
-	"github.com/openware/pkg/sonic/models"
 	"log"
+
+	"github.com/openware/pkg/sonic/models"
 
 	"github.com/openware/pkg/database"
 	"gopkg.in/yaml.v2"
@@ -75,8 +76,8 @@ func (p *Page) List() []models.IPage {
 		log.Fatalf("FindPageByPath failed: %s", tx.Error.Error())
 	}
 	allPages := make([]models.IPage, len(pages))
-	for idx, ent := range pages {
-		allPages[idx] = ent.Transform()
+	for idx := range pages {
+		allPages[idx] = pages[idx].Transform()
 	}
 	return allPages
 }

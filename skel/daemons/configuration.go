@@ -72,7 +72,7 @@ func FetchConfigurationPeriodic(peatioClient *peatio.Client, vaultService *vault
 				go setFinexRestart(vaultService, time.Now().Unix())
 			}
 		}
-		<-time.After(5 * time.Minute)
+		<-time.After(15 * time.Minute)
 	}
 }
 func fetchConfiguration(peatioClient *peatio.Client, opendaxAddr, platformID string) (bool, error) {
@@ -128,7 +128,7 @@ func getResponse(url string, platformID string) (*Response, error) {
 	}
 	// Check for API error
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("ERROR: getResponse: Unexpected status: %d", resp.StatusCode)
+		log.Printf("ERROR: getResponse: Unexpected status: %d with contents %s", resp.StatusCode, string(resBody))
 		return nil, errors.New(fmt.Sprintf("Unexpected status: %d", resp.StatusCode))
 	}
 
@@ -205,18 +205,39 @@ func createMarkets(peatioClient *peatio.Client, markets []MarketResponse) (shoul
 				log.Printf("ERROR: createMarkets: Can't create market with id %s. Error: %v. Errors: %v", market.ID, apiError.Error, apiError.Errors)
 			}
 		} else if res != nil && (market.MinPrice >= res.MinPrice || market.MinAmount >= res.MinAmount) {
-			shouldRestart = true
+			shouldSendRequest := false
 			marketParams := peatio.UpdateMarketParams{
-				ID:        res.ID,
-				EngineID:  strconv.Itoa(res.EngineID),
-				MinPrice:  market.MinPrice,
-				MaxPrice:  market.MaxPrice,
-				MinAmount: market.MinAmount,
+				ID:              res.ID,
+				EngineID:        strconv.Itoa(res.EngineID),
+				MinPrice:        res.MinPrice,
+				MaxPrice:        res.MaxPrice,
+				MinAmount:       res.MinAmount,
+				AmountPrecision: int64(res.AmountPrecision),
+				PricePrecision:  int64(res.PricePrecision),
 			}
-			_, apiError := peatioClient.UpdateMarket(marketParams)
-			if apiError != nil {
-				log.Printf("ERROR: createMarkets: Can't create market with id %s. Error: %v. Errors: %v",
-					market.ID, apiError.Error, apiError.Errors)
+
+			if market.MinPrice > res.MinPrice || market.MinAmount > res.MinAmount {
+				marketParams.MinPrice = market.MinPrice
+				marketParams.MaxPrice = market.MaxPrice
+				marketParams.MinAmount = market.MinAmount
+				shouldSendRequest = true
+			}
+
+			if market.AmountPrecision != int64(res.AmountPrecision) || market.PricePrecision != int64(res.PricePrecision) {
+				marketParams.AmountPrecision = market.AmountPrecision
+				marketParams.PricePrecision = market.PricePrecision
+				marketParams.MinPrice = market.MinPrice
+				shouldSendRequest = true
+			}
+
+			if shouldSendRequest {
+				_, apiError := peatioClient.UpdateMarket(marketParams)
+				log.Printf("INFO: createMarkets: updating: {\"from\": %+v, \"to\": %+v}", *res, marketParams)
+				if apiError != nil {
+					log.Printf("ERROR: createMarkets: Can't create market with id %s. Error: %v. Errors: %v", market.ID, apiError.Error, apiError.Errors)
+				} else {
+					shouldRestart = true
+				}
 			}
 		}
 	}
@@ -409,7 +430,7 @@ func GetXLNEnabledFromVault(vaultService *vault.Service) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	
+
 	if result == nil {
 		result = false
 	}
@@ -419,6 +440,7 @@ func GetXLNEnabledFromVault(vaultService *vault.Service) (bool, error) {
 func setFinexRestart(vaultService *vault.Service, timestamp int64) error {
 	app := "finex"
 	scope := "private"
+	log.Printf("INFO: Finex should restart")
 
 	// Load secret
 	vaultService.LoadSecrets(app, scope)

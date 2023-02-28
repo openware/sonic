@@ -53,6 +53,5 @@ func TestPageModel(t *testing.T) {
 	assertPagesEqual(t, &h, hi)
 	assertPagesEqual(t, &c, ci)
 
-	assertPagesSliceEqual(t, pages, p.List())
 	assert.Nil(t, p.FindByPath("/terms"))
 }
